@@ -1,6 +1,7 @@
 //
 // Created by Iluz, Lisaf(AWF) on 03/02/2023.
 //
+#include <stdlib.h>
 #include "list.h"
 #include "macro.h"
 #include "string.h"
@@ -18,12 +19,26 @@ void add(node *nodeToAdd, linkedList *list) {
     }
 }
 
-void newLinkedList(linkedList *list) {
+node *createNewNode(void *id, void *data) {
+    node* n = (node *) malloc(sizeof(node));
+    initNode(n);
+    n->id = (void *) id;
+    n->data = (void *) data;
+    return n;
+}
+
+linkedList *createNewLinkedList() {
+    linkedList * list = (linkedList *) malloc(sizeof(linkedList));
+    initLinkedList(list);
+    return list;
+}
+
+void initLinkedList(linkedList *list) {
     list->head = NULL;
     list->tail = NULL;
 }
 
-void newNode(node *node) {
+void initNode(node *node) {
     node->id = NULL;
     node->data = NULL;
     node->next = NULL;
@@ -32,7 +47,7 @@ void newNode(node *node) {
 int isIdExist(char *id, linkedList *list) {
     node *currNode;
     currNode = list->head;
-    if (isNotEmpty(list)) {
+    if (isListNotEmpty(list)) {
         while (currNode != NULL) {
             if (strcmp((char *) currNode->id, id) == 0) {
                 return TRUE;
@@ -55,8 +70,20 @@ void *getDataById(void *id, linkedList *list) {
     return NULL;
 }
 
-int isNotEmpty(linkedList *list) {
-    return list->head != NULL;
+int isListNotEmpty(linkedList *list) {
+    return list != NULL && list->head != NULL;
+}
+
+void freeLinkedList(linkedList* list) {
+    if (isListNotEmpty(list)) {
+        node* currNode = list->head;
+        node* nextNode;
+        while (currNode != NULL) {
+            nextNode = currNode->next;
+            free(currNode);
+            currNode = nextNode;
+        }
+    }
 }
 
 

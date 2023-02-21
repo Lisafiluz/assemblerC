@@ -13,10 +13,23 @@ typedef struct linkedList {
     struct node *head;
     struct node *tail;
 } linkedList;
-void newLinkedList(linkedList *list);
-void newNode(node *node);
+
+void initLinkedList(linkedList *list);
+
+void initNode(node *node);
+
 void *getDataById(void *id, linkedList *list);
+
 void add(node *nodeToAdd, linkedList *list);
+
+linkedList *createNewLinkedList();
+
+node *createNewNode(void *id, void *data);
+
 int isIdExist(char *id, linkedList *list);
-int isNotEmpty(linkedList *list);
+
+int isListNotEmpty(linkedList *list);
+
+void freeLinkedList(linkedList *list);
+
 #endif //ASSEMBLERC_LIST_H

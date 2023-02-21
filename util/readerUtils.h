@@ -13,4 +13,8 @@ char *trim(char *str);
 
 char *getCommandName(const char *line);
 
+int isEqual(char* str1, char* str2);
+
+char *getFileName(char **argv, int i, char *suffix);
+
 #endif //ASSEMBLERC_READERUTILS_H

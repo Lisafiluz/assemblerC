@@ -71,3 +71,16 @@ char *getCommandName(const char *line) {
     return command;
 }
 
+int isEqual(char* str1, char* str2) {
+    return strcmp(str1, str2) == 0 ? 1: 0;
+}
+
+char *getFileName(char **const argv, int i, char *suffix) {
+    char *fileName;
+    fileName = (char *) calloc(strlen(argv[i]) + 4, sizeof(char));
+    strcpy(fileName, argv[i]);
+    strcat(fileName, suffix);
+    fileName[strlen(fileName)] = '\0';
+    return fileName;
+}
+
