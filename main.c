@@ -1,7 +1,7 @@
 #include "util/readerUtils.h"
 #include "validators/progValidator.h"
 #include "service/preAssembler.h"
-#include "service/firstTransition.h"
+#include "service/assembler.h"
 
 void runAssembler(int argc, char **argv);
 
@@ -17,9 +17,6 @@ void runAssembler(int argc, char **argv) {
     continueRunAsm = validateProgramArgs(argc, argv);
     if (continueRunAsm) {
         preAssembler(argc, argv);
-        continueRunAsm = firstTransition(argc, argv);
-        if (continueRunAsm) {
-            continueRunAsm = secondTransition(argv);
-        }
+        assembler(argc, argv);
     }
 }

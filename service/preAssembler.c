@@ -52,7 +52,7 @@ void preAssembler(int argc, char **argv) {
 void openMacros(FILE *file, FILE *outputFile) {
     linkedList *macrosList, *macroData;
     node *macro, *row;
-    char *labelName, *macroName, *line, *lineCopy;
+    char *firstToken, *macroName, *line, *lineCopy;
     void *macroDataRowCounter;
     int macroFlag;
 
@@ -61,11 +61,10 @@ void openMacros(FILE *file, FILE *outputFile) {
     size_t len = 0;
     macroFlag = 0;
     while (getline(&line, &len, file) != -1) {
-        lineCopy = (char *) malloc(strlen(line) * sizeof(char));
-        strcpy(lineCopy, line);
+        lineCopy = copyStr(line);
         lineCopy = trim(lineCopy);
-        labelName = getCommandName(lineCopy);
-        if (isEqual(labelName, END_MACRO)) {
+        firstToken = getToken(lineCopy, ' ', 0);
+        if (isEqual(firstToken, END_MACRO)) {
             macroFlag = 0;
             macro = createNewNode(macroName, macroData);
             add(macro, macrosList);
@@ -73,20 +72,20 @@ void openMacros(FILE *file, FILE *outputFile) {
             row = createNewNode(macroDataRowCounter, lineCopy);
             add(row, macroData);
             macroDataRowCounter++;
-        } else if (isEqual(labelName, MACRO)) {
+        } else if (isEqual(firstToken, MACRO)) {
             macroData = createNewLinkedList();
             macroFlag = 1;
             macroDataRowCounter = (void *) 1;
             macroName = getMacroName(lineCopy);
-        } else if (isIdExist(labelName, macrosList)) {
-            linkedList *macroDataToAdd = getDataById(labelName, macrosList);
+        } else if (isIdExist(firstToken, macrosList)) {
+            linkedList *macroDataToAdd = getDataById(firstToken, macrosList);
             writeMacroDataToFile(macroDataToAdd, outputFile);
         } else {
             fputs(lineCopy, outputFile);
             fputs("\n", outputFile);
             free(lineCopy);
         }
-        free(labelName);
+        free(firstToken);
     }
     if (line) {
         free(line);

@@ -2,8 +2,8 @@ MAIN: mov r3 ,LENGTH
 LOOP: jmp L1(#-1,r6)
     mcr m1
         sub r1
-        sub r2,
-        sub r3,
+        sub r2
+        sub r3
     endmcr
 prn #-5
 bne LOOP(r4,r3)
