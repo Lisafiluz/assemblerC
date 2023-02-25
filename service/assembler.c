@@ -50,15 +50,13 @@ void runTransitions(char *fileName, FILE *file) {
     int isFileValid, i;
     int instructionsCounter, dataCounter;
     short *instructionsArray, *dataArray;
-    linkedList *errors, *symbolsTable;  // id is row number data is the error , id is symbol name data is memory address
+    linkedList *symbolsTable;  // id is row number data is the error , id is symbol name data is memory address
 
     isFileValid = 1;
     instructionsCounter = 0; //need to be initialized here?
     instructionsArray = malloc(sizeof(short));
     dataCounter = 0;  //need to be initialized here?
     dataArray = malloc(sizeof(short));
-    errors = createNewLinkedList();
-
 
     isFileValid = runFirstTransition(file, instructionsCounter, instructionsArray, dataCounter, dataArray,
                                      fileName);
@@ -95,10 +93,10 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
         lineCopy = copyStr(line);
         if (!isCommentLine(lineCopy) && !isEmptyLine(lineCopy)) {
             lineCopy = trim(lineCopy);
-            firstWord = getToken(lineCopy, ' ', 0);
+            firstWord = getToken(line, ' ', 0);
 
             if (isSymbol(firstWord)) {
-                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end
+                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end change the string maybe not a good practice
                 if (validateSymbolName(firstWord, fileName, rowCounter)) {
                     symbolFlag = 1;
                 } else {
@@ -120,7 +118,8 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                 } else {
                     isValid = FALSE;
                 }
-            } else if (isExternalOrEntryGuidance(firstWord) || isExternalOrEntryGuidance(secondWord)) {
+            }
+            else if (isExternalOrEntryGuidance(firstWord) || isExternalOrEntryGuidance(secondWord)) {
                 if (isExternalOrEntryGuidance(secondWord)) {
                     //print a nice warning as irrelevant symbol declaration that going to be ignored
                 }
@@ -144,13 +143,13 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
 //                }
 //            }
 
+        //free(firstWord); //todo: need to understand why doesn't work with this line
+        //free(secondWord);//todo: need to understand why doesn't work with this line
         }
         rowCounter++;
         symbolFlag = 0;
-        ////freeee
+        ////free
         free(lineCopy);
-        free(firstWord);
-        free(secondWord);
     }
     if (isValid) {
         //updateDataSymbolsValues(symbolsTable, ic);

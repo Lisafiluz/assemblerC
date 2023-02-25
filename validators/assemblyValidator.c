@@ -18,11 +18,11 @@
 
 int getNextTokenIndex(char *str, int fromIdx);
 
-int isData(const char *line);
+int isData(const char *line, int i);
 
-int validateDotDataRow(char *lineCopy, const char *fileName, int rowCounter);
+int validateDotDataRow(char *arguments, const char *fileName, int rowCounter);
 
-int validateDotStringRow(char *lineCopy, int index, char *fileName, int rowCounter);
+int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, int rowCounter);
 
 int validateSymbolName(char *symbol, char *fileName, int rowCounter) {
     int isValid;
@@ -37,6 +37,7 @@ int validateSymbolName(char *symbol, char *fileName, int rowCounter) {
         printError(SYMBOL_SYNTAX_NAME, symbol, fileName, rowCounter);
         isValid = FALSE;
     }
+    //is already exist?
     return isValid;
 }
 
@@ -44,59 +45,60 @@ int validateDataGuidanceLine(char *line, const int symbolFlag, char *fileName, i
     // ABC: .data -4, 3,4,1
     // .string      "ssss"
     int isValid, index;
-    char *lineCopy;
+    char *lineCopy, *startPtr;
     isValid = TRUE;
     index = 0;
     lineCopy = copyStr(line);
+    startPtr = lineCopy;
     if (symbolFlag) {
         index = getNextTokenIndex(lineCopy, index);
     }
-    if (isData(lineCopy)) {
+    if (isData(lineCopy, index)) {
         index = getNextTokenIndex(lineCopy, index);
-        isValid = validateDotDataRow(lineCopy, fileName, rowCounter);
+        isValid = validateDotDataRow(&lineCopy[index], fileName, rowCounter);
 
     } else {
         index = getNextTokenIndex(lineCopy, index);
-        isValid = validateDotStringRow(lineCopy, index, fileName, rowCounter);
+        isValid = validateDotStringRow(startPtr, &lineCopy[index], fileName, rowCounter);
     }
     free(lineCopy);
     return isValid;
 }
 
-int validateDotStringRow(char *lineCopy, int index, char *fileName, int rowCounter) {
+int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, int rowCounter) {
     int isValid;
     size_t size;
     size = strlen(lineCopy);
     isValid = TRUE;
-    if (lineCopy[0] != '"' || lineCopy[size - index] != '"') {
+    if (argument[0] != '"' || lineCopy[size - 1] != '"') {
         isValid = FALSE;
         printError(NOT_A_VALID_STRING, lineCopy, fileName, rowCounter);
     }
     return isValid;
 }
 
-int validateDotDataRow(char *lineCopy, const char *fileName, int rowCounter) {
+int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     int isValid, i, numberCounter;
     char *number;
     size_t size;
-    size = strlen(lineCopy);
+    size = strlen(arguments);
     numberCounter = 0;
     isValid = TRUE;
     number = (char *) malloc(size * sizeof(char));
     for (i = 0; i < size; i++) {
-        if (isspace(lineCopy[i])) {
+        if (isspace(arguments[i])) {
             i++;
         } else {
-            if (lineCopy[i] == ',') {
+            if (arguments[i] == ',') {
                 if (!isValidNumber(number)) {
                     isValid = FALSE;
                     printError(NOT_A_VALID_NUMBER, number, fileName, rowCounter);
                 }
                 free(number);
                 numberCounter = 0;
-                number = (char *) malloc((size - i) * sizeof(char));
+                number = (char *) malloc((size - i + 1) * sizeof(char));
             } else {
-                number[numberCounter] = lineCopy[i];
+                number[numberCounter] = arguments[i];
                 numberCounter++;
             }
         }
@@ -113,13 +115,13 @@ int validateExternalGuidanceLine(char* line, int symbolFlag, char* fileName, int
 
 }
 
-int isData(const char *line) {
+int isData(const char *line, int i) {
     char *data = ".data";
-    return line[0] == data[0] &&
-           line[1] == data[1] &&
-           line[2] == data[2] &&
-           line[3] == data[3] &&
-           line[4] == data[4];
+    return line[i] == data[0] &&
+           line[i + 1] == data[1] &&
+           line[i + 2] == data[2] &&
+           line[i + 3] == data[3] &&
+           line[i + 4] == data[4];
 }
 
 int getNextTokenIndex(char *str, int fromIdx) {

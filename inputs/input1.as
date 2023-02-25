@@ -12,7 +12,7 @@ L1: inc K
 bne LOOP(K,STR)
 END: stop
 m1
-STR: .string “abcdef”
+STR: .string "abcdef"
 LENGTH: .data 6,-9,15
 K: .data 22
 m1

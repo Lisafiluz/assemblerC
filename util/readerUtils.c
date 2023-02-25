@@ -82,10 +82,6 @@ char *getToken(const char *line, const char delim, int tokenNumber) {
     return token;
 }
 
-char *getSecondToken(const char *line) {
-
-}
-
 int isEqual(const char *str1, const char *str2) {
     return strcmp(str1, str2) == 0 ? 1 : 0;
 }
