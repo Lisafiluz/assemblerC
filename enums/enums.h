@@ -13,9 +13,16 @@ enum errorMessages{
     SYMBOL_SYNTAX_NAME,
     DUPLICATE_SYMBOL_NAME,
     NOT_A_VALID_NUMBER,
+    EMPTY_NUMBER,
     NOT_A_VALID_STRING
 };
 extern enum errorMessages errorMessages;
 
+enum warningMessages{
+    REDUNDANT_SYMBOL
+};
+extern enum warningMessages warningMessages;
+
 char *getFullErrorMessage(enum errorMessages errorType);
+char *getFullWarningMessage(enum warningMessages warningType);
 #endif //ASSEMBLERC_ENUMS_H

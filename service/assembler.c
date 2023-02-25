@@ -14,7 +14,7 @@
 #include "../validators/assemblyValidator.h"
 #include "assemblyEncoder.h"
 #include "../structs/symbol.h"
-#include "../io/errorsHandler.h"
+#include "../io/messagesHandler.h"
 
 #define READ "r"
 #define WRITE "w"
@@ -96,8 +96,8 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
             firstWord = getToken(line, ' ', 0);
 
             if (isSymbol(firstWord)) {
-                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end change the string maybe not a good practice
-                if (validateSymbolName(firstWord, fileName, rowCounter)) {
+                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end maybe not a good practice
+                if (validateSymbolName(firstWord, symbolsTable, fileName, rowCounter)) {
                     symbolFlag = 1;
                 } else {
                     isValid = FALSE;
@@ -107,21 +107,15 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
             if (isDataGuidance(firstWord) || isDataGuidance(secondWord)) {
                 if (validateDataGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
                     if (symbolFlag) {
-                        if (!isIdExist(firstWord, symbolsTable)) {
-                            add(createNewNode(firstWord, createSymbol(firstWord, DATA_TYPE, dc)), symbolsTable);
-                        } else {
-                            printError(DUPLICATE_SYMBOL_NAME, firstWord, fileName, rowCounter);
-                            isValid = FALSE;
-                        }
+                        add(createNewNode(firstWord, createSymbol(firstWord, DATA_TYPE, dc)), symbolsTable);
                     }
                     dc += saveGuidanceLine(lineCopy, dataArray);
                 } else {
                     isValid = FALSE;
                 }
-            }
-            else if (isExternalOrEntryGuidance(firstWord) || isExternalOrEntryGuidance(secondWord)) {
+            } else if (isExternalOrEntryGuidance(firstWord) || isExternalOrEntryGuidance(secondWord)) {
                 if (isExternalOrEntryGuidance(secondWord)) {
-                    //print a nice warning as irrelevant symbol declaration that going to be ignored
+                    printWarning(REDUNDANT_SYMBOL, lineCopy, fileName, rowCounter);
                 }
                 if (isExternalGuidance(firstWord) || isExternalGuidance(secondWord)) {
                     if (validateExternalGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
@@ -143,8 +137,8 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
 //                }
 //            }
 
-        //free(firstWord); //todo: need to understand why doesn't work with this line
-        //free(secondWord);//todo: need to understand why doesn't work with this line
+            //free(firstWord); //todo: need to understand why doesn't work with this line
+            //free(secondWord);//todo: need to understand why doesn't work with this line
         }
         rowCounter++;
         symbolFlag = 0;

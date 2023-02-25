@@ -9,7 +9,7 @@
 #include "assemblyValidator.h"
 #include "../enums/enums.h"
 #include "../util/readerUtils.h"
-#include "../io/errorsHandler.h"
+#include "../io/messagesHandler.h"
 
 #define SYMBOL_MAX_LEN 30
 #define SYMBOL_MIN_LEN 1
@@ -24,7 +24,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter);
 
 int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, int rowCounter);
 
-int validateSymbolName(char *symbol, char *fileName, int rowCounter) {
+int validateSymbolName(char *symbol, linkedList* symbolsTable, char *fileName, int rowCounter) {
     int isValid;
     isValid = TRUE;
     if (strlen(symbol) > SYMBOL_MAX_LEN) {
@@ -37,13 +37,14 @@ int validateSymbolName(char *symbol, char *fileName, int rowCounter) {
         printError(SYMBOL_SYNTAX_NAME, symbol, fileName, rowCounter);
         isValid = FALSE;
     }
-    //is already exist?
+    else if (isIdExist(symbol, symbolsTable)) {
+        printError(DUPLICATE_SYMBOL_NAME, symbol, fileName, rowCounter);
+        isValid = FALSE;
+    }
     return isValid;
 }
 
 int validateDataGuidanceLine(char *line, const int symbolFlag, char *fileName, int rowCounter) {
-    // ABC: .data -4, 3,4,1
-    // .string      "ssss"
     int isValid, index;
     char *lineCopy, *startPtr;
     isValid = TRUE;
@@ -72,7 +73,7 @@ int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, i
     isValid = TRUE;
     if (argument[0] != '"' || lineCopy[size - 1] != '"') {
         isValid = FALSE;
-        printError(NOT_A_VALID_STRING, lineCopy, fileName, rowCounter);
+        printError(NOT_A_VALID_STRING, argument, fileName, rowCounter);
     }
     return isValid;
 }
@@ -90,7 +91,10 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
             i++;
         } else {
             if (arguments[i] == ',') {
-                if (!isValidNumber(number)) {
+                if (strlen(number) == 0) {
+                    isValid = FALSE;
+                    printError(EMPTY_NUMBER, number, fileName, rowCounter);
+                } else if (!isValidNumber(number)) {
                     isValid = FALSE;
                     printError(NOT_A_VALID_NUMBER, number, fileName, rowCounter);
                 }
@@ -103,7 +107,10 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
             }
         }
     }
-    if (!isValidNumber(number)) {
+    if (strlen(number) == 0) {
+        isValid = FALSE;
+        printError(EMPTY_NUMBER, number, fileName, rowCounter);
+    } else if (!isValidNumber(number)) {
         isValid = FALSE;
         printError(NOT_A_VALID_NUMBER, number, fileName, rowCounter);
     }
@@ -111,7 +118,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     return isValid;
 }
 
-int validateExternalGuidanceLine(char* line, int symbolFlag, char* fileName, int rowCounter) {
+int validateExternalGuidanceLine(char *line, int symbolFlag, char *fileName, int rowCounter) {
 
 }
 
@@ -126,7 +133,7 @@ int isData(const char *line, int i) {
 
 int getNextTokenIndex(char *str, int fromIdx) {
     int i;
-    i=fromIdx;
+    i = fromIdx;
     while (!isspace(str[i])) i++;
     while (isspace(str[i])) i++;
     return i;

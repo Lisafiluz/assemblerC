@@ -7,7 +7,7 @@
 #include "readerUtils.h"
 
 #define DATA .data
-#define STRING .STRING
+#define STRING .string
 
 int isSymbol(char *str) {
     return str[strlen(str) - 1] == ':';
