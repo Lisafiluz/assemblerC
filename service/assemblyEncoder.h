@@ -6,4 +6,6 @@
 #define ASSEMBLERC_ASSEMBLYENCODER_H
 
 int saveGuidanceLine(char* line, short* dataArray);
+
+//int saveCodeLine(char* line, short* instructionsArray);
 #endif //ASSEMBLERC_ASSEMBLYENCODER_H

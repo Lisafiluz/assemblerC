@@ -69,9 +69,7 @@ void runTransitions(char *fileName, FILE *file) {
     }
 }
 
-//// Build the const opCodeTable(linkedList with id as the op name and data as its opcode in decimal(short=2byte?): mov:1 -> cmp:2 -> add:3 -> ... -> stop:15
 //// array of 7 shorts for the registers(only 14 bits needed)
-
 int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                        int dc, short *dataArray, char *fileName) {
     int isValid, rowCounter, symbolFlag;
@@ -80,23 +78,18 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
     linkedList *symbolsTable;
 
     symbolsTable = createNewLinkedList();
-    isValid = TRUE;
-    rowCounter = 1;
-    ic = 0;
-    dc = 0;
-    symbolFlag = 0;
+    isValid = TRUE, rowCounter = 1, ic = 0, dc = 0, symbolFlag = 0;
     line = NULL;
     size_t len = 0;
     operationsTable = getOperationsTable();
 
     while (getline(&line, &len, file) != -1) {
         lineCopy = copyStr(line);
+        lineCopy = trim(lineCopy);
         if (!isCommentLine(lineCopy) && !isEmptyLine(lineCopy)) {
-            lineCopy = trim(lineCopy);
             firstWord = getToken(line, ' ', 0);
-
             if (isSymbol(firstWord)) {
-                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end maybe not a good practice
+                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end. maybe not a good practice
                 if (validateSymbolName(firstWord, symbolsTable, fileName, rowCounter)) {
                     symbolFlag = 1;
                 } else {
@@ -107,7 +100,11 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
             if (isDataGuidance(firstWord) || isDataGuidance(secondWord)) {
                 if (validateDataGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
                     if (symbolFlag) {
-                        add(createNewNode(firstWord, createSymbol(firstWord, DATA_TYPE, dc)), symbolsTable);
+                        node *n;
+                        symbol *s;
+                        s = createSymbol(firstWord, DATA_TYPE, dc);
+                        n = createNewNode(firstWord, s);
+                        add(n, symbolsTable);
                     }
                     dc += saveGuidanceLine(lineCopy, dataArray);
                 } else {
@@ -119,25 +116,33 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                 }
                 if (isExternalGuidance(firstWord) || isExternalGuidance(secondWord)) {
                     if (validateExternalGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
-                        //add this symbol to the symbols table if not exist with sign=external
+                        char *externalSymbolName;
+                        node *n;
+                        symbol *s;
+                        externalSymbolName = getToken(lineCopy, ' ', symbolFlag);
+                        s = createSymbol(externalSymbolName, EXTERNAL_TYPE, dc);
+                        n = createNewNode(externalSymbolName, s);
+                        add(n, symbolsTable);
+                        dc += saveGuidanceLine(lineCopy, dataArray);
                         //check for potential duplicates external vs entry?
                     } else {
                         isValid = FALSE;
                     }
                 }
-            }// else {
-//                if (symbolFlag) {
-//                    //add this symbol to the symbols table if not exist with sign=code and value=ic
-//                    //lineCopy = line from second word(without the symbol)
-//                }
-//                if (validateRegularLine(lineCopy, fileName, rowCounter)) {
-//                    ic += saveRegularLine(lineCopy, instructionsArray);
-//                } else {
-//                    isValid = FALSE;
-//                }
-//            }
+            } else if (validateCodeLine(lineCopy, symbolFlag, operationsTable, fileName, rowCounter)) {
+                if (symbolFlag) {
+                    node *n;
+                    symbol *s;
+                    s = createSymbol(firstWord, CODE_TYPE, ic);
+                    n = createNewNode(firstWord, s);
+                    add(n, symbolsTable);
+                }
+                //ic += saveCodeLine(lineCopy, instructionsArray);
+            } else {
+                isValid = FALSE;
+            }
 
-            //free(firstWord); //todo: need to understand why doesn't work with this line
+            //free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
             //free(secondWord);//todo: need to understand why doesn't work with this line
         }
         rowCounter++;
@@ -145,9 +150,11 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
         ////free
         free(lineCopy);
     }
-    if (isValid) {
-        //updateDataSymbolsValues(symbolsTable, ic);
-    }
+//    if (postValidation(isValid)) {
+//        todo: create linkedList with all the symbols that are defined as arguments (exclude entry) in the file with the row
+//        todo: validate here if any of those symbols are not appear in the symbols table
+//        //updateDataSymbolsValues(symbolsTable, ic);
+//    }
     /*
      * 1.0.0 init IC<-0 DC<-0
      * 2.0.0 while there is lines in the file
@@ -177,14 +184,13 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
      *      4.1.0 update symbols table
      * 5.0.0 return isValid
      * */
-
-
     return isValid;
 }
 
 
 int runSecondTransition(FILE *file, int ic, short *instructionsArray,
                         int dc, short *dataArray, char *fileName) {
+    //todo: validate arguments names with the symbolsTable
     int isValid, rowCounter;
     isValid = 1;
     rowCounter = 1;

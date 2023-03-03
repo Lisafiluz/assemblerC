@@ -21,11 +21,11 @@ int isCommentLine(char *line);
 
 int isEmptyLine(char *line);
 
-int hasSpaces(char *str);
+int hasSpaces(const char *str);
 
-int isAlphaNumeric(char *str);
+int isAlphaNumeric(const char *str);
 
-int isValidNumber(char *number);
+int isValidNumber(const char *number);
 
 char *copyStr(char *str);
 #endif //ASSEMBLERC_READERUTILS_H

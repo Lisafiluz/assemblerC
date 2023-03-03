@@ -103,13 +103,13 @@ int isEmptyLine(char *line) {
     size_t length;
     length = strlen(line);
     while (isspace(*line)) {
-        line++;
+        line++;  //todo: generous
         length--;
     }
     return length == 0;
 }
 
-int hasSpaces(char *str) {
+int hasSpaces(const char *str) {
     int i;
     size_t size = strlen(str);
     for (i = 0; i < size; i++) {
@@ -120,7 +120,7 @@ int hasSpaces(char *str) {
     return FALSE;
 }
 
-int isAlphaNumeric(char *str) {
+int isAlphaNumeric(const char *str) {
     int i;
     size_t size = strlen(str);
     for (i = 0; i < size; i++) {
@@ -131,7 +131,7 @@ int isAlphaNumeric(char *str) {
     return TRUE;
 }
 
-int isValidNumber(char *number) {
+int isValidNumber(const char *number) {
     int i;
     size_t size;
 
