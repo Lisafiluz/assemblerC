@@ -116,5 +116,11 @@ int getArgumentAddressMethod(char *arg) {
     return -1;
 }
 
+char *getLineWithoutSymbol(char *line) {
+    while (!isspace(*line)) line++;
+    while (isspace(*line)) line++;
+    return line;
+}
+
 
 

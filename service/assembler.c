@@ -106,7 +106,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                         n = createNewNode(firstWord, s);
                         add(n, symbolsTable);
                     }
-                    dc += saveGuidanceLine(lineCopy, dataArray);
+                    dc += saveGuidanceLine(lineCopy, symbolFlag, dataArray, dc);
                 } else {
                     isValid = FALSE;
                 }
@@ -123,7 +123,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                         s = createSymbol(externalSymbolName, EXTERNAL_TYPE, dc);
                         n = createNewNode(externalSymbolName, s);
                         add(n, symbolsTable);
-                        dc += saveGuidanceLine(lineCopy, dataArray);
+                        //dc += saveGuidanceLine(lineCopy, dataArray);
                         //check for potential duplicates external vs entry?
                     } else {
                         isValid = FALSE;
@@ -137,7 +137,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                     n = createNewNode(firstWord, s);
                     add(n, symbolsTable);
                 }
-                //ic += saveCodeLine(lineCopy, instructionsArray);
+                //ic += saveCodeLine(lineCopy, instructionsArray, ic);
             } else {
                 isValid = FALSE;
             }

@@ -26,8 +26,6 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter);
 
 int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, int rowCounter);
 
-char *getLineWithoutSymbol(char *line);
-
 int operationValidator(char *command, int operationNumber, char *fileName, int rowNumber);
 
 int validateMov(char *command);
@@ -286,13 +284,6 @@ int validateMov(char *command) {
 
     return isValid;
 }
-
-char *getLineWithoutSymbol(char *line) {
-    while (!isspace(*line)) line++;
-    while (isspace(*line)) line++;
-    return line;
-}
-
 int postValidations(int isValid, linkedList *symbolsTable) {
     return 0;
 }

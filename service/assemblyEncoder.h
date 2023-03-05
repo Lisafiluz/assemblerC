@@ -5,7 +5,7 @@
 #ifndef ASSEMBLERC_ASSEMBLYENCODER_H
 #define ASSEMBLERC_ASSEMBLYENCODER_H
 
-int saveGuidanceLine(char* line, short* dataArray);
+int saveGuidanceLine(char *line, int symbolFlag, short *dataArray, int dc);
 
 //int saveCodeLine(char* line, short* instructionsArray);
 #endif //ASSEMBLERC_ASSEMBLYENCODER_H

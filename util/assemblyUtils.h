@@ -19,4 +19,6 @@ char *getArgument(const char *command, int argumentNumber);
 
 int getArgumentAddressMethod(char *arg);
 
+char *getLineWithoutSymbol(char *line);
+
 #endif //ASSEMBLERC_ASSEMBLYUTILS_H
