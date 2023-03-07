@@ -85,7 +85,7 @@ void openMacros(FILE *file, FILE *outputFile) {
             fputs("\n", outputFile);
             free(lineCopy);
         }
-        free(firstToken);
+        free(firstToken);  // cause to a bug
     }
     if (line) {
         free(line);
@@ -114,7 +114,7 @@ char *getMacroName(char *line) {
         line++;
     }
 
-    macroName = (char *) malloc(strlen(line) * sizeof(char));
+    macroName = (char *) malloc((strlen(line) + 1) * sizeof(char));
     i = 0;
     while (!isspace(line[i]) && i < strlen(line)) {
         macroName[i] = line[i];

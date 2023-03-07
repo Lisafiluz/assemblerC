@@ -41,13 +41,13 @@ int getNumberOfArgs(const char *command) {
     // "xxx"
     int i, numberOfArgs, jumpAddressMethodFlag;
     i = 0, numberOfArgs = 0, jumpAddressMethodFlag = 0;
-    while (isspace(command[i])) {
+    while (isspace(command[i]) && i < strlen(command)) {
         i++;
     }
-    while (!isspace(command[i])) {
+    while (!isspace(command[i]) && i < strlen(command)) {
         i++;
     }
-    if (i + 1 == strlen(command)) {
+    if (i == strlen(command)) {
         return 0;
     }
     numberOfArgs++;
@@ -95,6 +95,32 @@ char *getArgument(const char *command, int argumentNumber) {
     }
     argument[argIdx] = '\0';
     return argument;
+}
+
+char *getParam(const char *argument, int paramNumber) {
+    int i, paramIdx;
+    char *param;
+    i = 0, paramIdx = 0;
+    while (argument[i] != '(') {
+        i++;
+    }
+    i++;
+    param = (char *) malloc((strlen(argument) - i + 1) * sizeof(char));
+    for (; i < strlen(argument) - 1; i++) {
+        if (argument[i] == ',') {
+            if (paramNumber == 0) {
+                param[paramIdx] = '\0';
+                return param;
+            } else {
+                paramNumber --;
+            }
+        } else if (paramNumber == 0) {
+            param[paramIdx] = argument[i];
+            paramIdx++;
+        }
+    }
+    param[paramIdx] = '\0';
+    return param;
 }
 
 int getArgumentAddressMethod(char *arg) {

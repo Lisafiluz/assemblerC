@@ -17,6 +17,8 @@ int getNumberOfArgs(const char *command);
 
 char *getArgument(const char *command, int argumentNumber);
 
+char *getParam(const char *argument, int paramNumber);
+
 int getArgumentAddressMethod(char *arg);
 
 char *getLineWithoutSymbol(char *line);

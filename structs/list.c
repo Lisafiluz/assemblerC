@@ -5,6 +5,7 @@
 #include "list.h"
 #include "macro.h"
 #include "string.h"
+#include "../util/readerUtils.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -28,7 +29,8 @@ node *createNewNode(void *id, void *data) {
 }
 
 linkedList *createNewLinkedList() {
-    linkedList * list = (linkedList *) malloc(sizeof(linkedList));
+    linkedList *list;
+    list = (linkedList *) malloc(sizeof(linkedList));
     initLinkedList(list);
     return list;
 }
@@ -49,7 +51,7 @@ int isIdExist(char *id, linkedList *list) {
     currNode = list->head;
     if (isListNotEmpty(list)) {
         while (currNode != NULL) {
-            if (strcmp((char *) currNode->id, id) == 0) {
+            if (isEqual((char *) (currNode->id), id)) {
                 return TRUE;
             }
             currNode = currNode->next;

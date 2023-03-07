@@ -7,5 +7,5 @@
 
 #include "../structs/list.h"
 
-char ** getOperationsTable();
+const char ** getOperationsTable();
 #endif //ASSEMBLERC_CONSTANTBUILDERUTILS_H

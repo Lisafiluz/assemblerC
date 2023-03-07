@@ -74,7 +74,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                        int dc, short *dataArray, char *fileName) {
     int isValid, rowCounter, symbolFlag;
     char *line, *lineCopy, *firstWord, *secondWord;
-    char **operationsTable;
+    const char **operationsTable;
     linkedList *symbolsTable;
 
     symbolsTable = createNewLinkedList();
@@ -87,9 +87,10 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
         lineCopy = copyStr(line);
         lineCopy = trim(lineCopy);
         if (!isCommentLine(lineCopy) && !isEmptyLine(lineCopy)) {
-            firstWord = getToken(line, ' ', 0);
+            firstWord = getToken(lineCopy, ' ', 0);
             if (isSymbol(firstWord)) {
                 firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end. maybe not a good practice
+                //firstWord = getToken(firstWord, ':', 0); // cant free the previous firstWord
                 if (validateSymbolName(firstWord, symbolsTable, fileName, rowCounter)) {
                     symbolFlag = 1;
                 } else {
@@ -106,7 +107,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                         n = createNewNode(firstWord, s);
                         add(n, symbolsTable);
                     }
-                    dc += saveGuidanceLine(lineCopy, symbolFlag, dataArray, dc);
+                    dc += saveGuidanceLine(lineCopy, symbolFlag, dataArray, dc); // use &dataArray
                 } else {
                     isValid = FALSE;
                 }
@@ -137,7 +138,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                     n = createNewNode(firstWord, s);
                     add(n, symbolsTable);
                 }
-                //ic += saveCodeLine(lineCopy, instructionsArray, ic);
+                ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsArray, ic);  // use &iArray
             } else {
                 isValid = FALSE;
             }

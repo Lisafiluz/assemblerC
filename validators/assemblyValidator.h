@@ -13,7 +13,7 @@ int validateDataGuidanceLine(char *line, int symbolFlag, char *fileName, int row
 
 int validateExternalGuidanceLine(char *line, int symbolFlag, char *fileName, int rowCounter);
 
-int validateCodeLine(char *line, int symbolFlag, char ** operationsTable, char *fileName, int rowCounter);
+int validateCodeLine(char *line, int symbolFlag, const char ** operationsTable, char *fileName, int rowCounter);
 
 int isValidDirectAddressArgument(const char *argument);
 

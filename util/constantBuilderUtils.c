@@ -7,7 +7,7 @@
 
 #define NUMBER_OF_OPERATIONS 16
 
-char ** getOperationsTable() {
+const char ** getOperationsTable() {
 //    linkedList *opTable;
 //    opTable = createNewLinkedList();
 //    add(createNewNode("mov", (void *) 0), opTable);
@@ -47,5 +47,5 @@ char ** getOperationsTable() {
     opTable[15] = "stop";
 
 
-    return opTable;
+    return (const char **) opTable;
 }

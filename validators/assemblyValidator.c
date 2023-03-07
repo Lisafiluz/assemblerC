@@ -96,7 +96,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     size = strlen(arguments);
     numberCounter = 0;
     isValid = TRUE;
-    number = (char *) malloc(size * sizeof(char));
+    number = (char *) malloc((size + 1) * sizeof(char));
     for (i = 0; i < size; i++) {
         if (isspace(arguments[i])) {
             i++;
@@ -148,7 +148,7 @@ int validateExternalGuidanceLine(char *line, int symbolFlag, char *fileName, int
     return isValid;
 }
 
-int validateCodeLine(char *line, int symbolFlag, char **operationsTable, char *fileName, int rowCounter) {
+int validateCodeLine(char *line, int symbolFlag, const char **operationsTable, char *fileName, int rowCounter) {
     int isValid, i, isFound;
     char *lineCopy, *pLineCopy, *operationName;
     isFound = FALSE;
@@ -339,8 +339,8 @@ int isValidJumpAddressArgMethod(char *argument) {
     char *param1, *param2;
     paramIndex = 1, param1Idx = 0, param2Idx = 0;
     i = strlen(symbol) + 1;
-    param1 = (char *) malloc(strlen(argument) * sizeof(char));
-    param2 = (char *) malloc(strlen(argument) * sizeof(char));
+    param1 = (char *) malloc((strlen(argument) + 1) * sizeof(char));
+    param2 = (char *) malloc((strlen(argument) + 1) * sizeof(char));
     for (; i < strlen(argument) - 1; i++) {
         if (argument[i] == ',') {
             paramIndex++;

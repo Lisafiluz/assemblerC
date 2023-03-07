@@ -46,13 +46,18 @@ char *trim(char *str) {
 }
 
 char *rtrim(char *str) {
-    char *lastChar = str + strlen(str);
-    while (isspace(*--lastChar));
+    char *lastChar;
+    lastChar = str + strlen(str) - 1;
+    while (isspace(*lastChar)) {
+        //todo: check empty line
+        lastChar--;
+    }
     *(++lastChar) = '\0';
     return str;
 }
 
 char *ltrim(char *str) {
+    //todo: check empty line
     while (isspace(*str)) str++;
     return str;
 }
@@ -61,7 +66,7 @@ char *getToken(const char *line, const char delim, int tokenNumber) {
     char *token;
     int i, tokenIdx;
 
-    token = (char *) malloc(strlen(line) * sizeof(char));
+    token = (char *) malloc((strlen(line) + 1) * sizeof(char));
     i = 0;
     tokenIdx = 0;
 
@@ -83,7 +88,7 @@ char *getToken(const char *line, const char delim, int tokenNumber) {
 }
 
 int isEqual(const char *str1, const char *str2) {
-    return strcmp(str1, str2) == 0 ? 1 : 0;
+    return strcmp(str1, str2) == 0 ? TRUE : FALSE;
 }
 
 char *getFileName(char **const argv, int i, char *suffix) {
@@ -154,7 +159,7 @@ int isValidNumber(const char *number) {
 
 char *copyStr(char *str) {
     char *copy;
-    copy = (char *) malloc(strlen(str) * sizeof(char));
+    copy = (char *) malloc((strlen(str) + 1) * sizeof(char));
     strcpy(copy, str);
     return copy;
 }
