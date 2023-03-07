@@ -8,6 +8,8 @@
 #include "assemblyEncoder.h"
 #include "../util/assemblyUtils.h"
 #include "../util/readerUtils.h"
+#include "../structs/list.h"
+#include "../structs/shortData.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -20,11 +22,11 @@
 #define JUMP_ADDRESSING 2
 #define REGISTER_ADDRESSING 3
 
-size_t saveString(char *line, short *dataArray, int dc);
+size_t saveString(char *line, linkedList *dataList, int dc);
 
-size_t saveData(char *line, short *dataArray, int dc);
+size_t saveData(char *line, linkedList *dataList, int dc);
 
-int saveCode(char *command, int operationNumber, short *instructionsArray, int ic);
+int saveCode(char *command, int operationNumber, linkedList *instructionsList, int ic);
 
 short addOperationCode(short operationNumber);
 
@@ -38,7 +40,27 @@ int calculateWordsToAddInJumpArg(const char *jumpCommand);
 
 short addSourceAndTargetParams(const char *jumpCommand);
 
-int saveGuidanceLine(char *line, int symbolFlag, short *dataArray, int dc) {
+void addAdditionalWords(char *sourceArg, char *targetArg, linkedList *instructionsList);
+
+int getRegisterNumber(const char *registerName);
+
+short addSourceRegisterToWord(int num);
+
+short addTargetRegisterToWord(int num);
+
+short getImmediateNumber(const char *arg);
+
+void addAdditionalWordsForJumpAddressing(const char *arg, linkedList *instructionsList);
+
+void addParamWord(const char *param, int paramAddressMethod, linkedList *instructionsList);
+
+void addRegistersWord(const char *reg1, const char *reg2, linkedList *instructionsList);
+
+void addArgumentWord(const char *arg, int argMethodAddress, linkedList *instructionsList);
+
+void *getSymbolNameFromJumpArgument(const char *arg);
+
+int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc) {
     size_t L;
     char *lineCopy, *pLine, *guidanceCommand;
     lineCopy = copyStr(line);
@@ -49,16 +71,16 @@ int saveGuidanceLine(char *line, int symbolFlag, short *dataArray, int dc) {
 
     guidanceCommand = getToken(lineCopy, ' ', 0);
     if (isEqual(guidanceCommand, ".data")) {
-        L = saveData(lineCopy, dataArray, dc);
+        L = saveData(lineCopy, dataList, dc);
     } else {
-        L = saveString(lineCopy, dataArray, dc);
+        L = saveString(lineCopy, dataList, dc);
     }
     free(pLine);
     free(guidanceCommand);
     return (int) L;
 }
 
-size_t saveData(char *line, short *dataArray, int dc) {
+size_t saveData(char *line, linkedList *dataList, int dc) {
     // .data -52, 53, +49
     int startDc, i, numberCounter;
     char *number;
@@ -73,8 +95,9 @@ size_t saveData(char *line, short *dataArray, int dc) {
     for (i = 0; i < size; i++) {
         if (!isspace(line[i])) {
             if (line[i] == ',') {
-                dataArray = realloc(dataArray, (dc + 1) * sizeof(short));
-                dataArray[dc] = atoi(number);  // todo: verify 14 bits saving including negative numbers
+                //(*dataList) = realloc((*dataList), (dc + 1) * sizeof(short));
+                add(createNewNode(NULL, createShortData((short) atoi(number))), dataList);
+                //(*dataList)[dc] = atoi(number);  // todo: verify 14 bits saving including negative numbers
                 dc++;
                 free(number);
                 numberCounter = 0;
@@ -85,14 +108,15 @@ size_t saveData(char *line, short *dataArray, int dc) {
             }
         }
     }
-    dataArray = realloc(dataArray, (dc + 1) * sizeof(short));
-    dataArray[dc] = atoi(number);
+    //(*dataList) = realloc((*dataList), (dc + 1) * sizeof(short));
+    //(*dataList)[dc] = atoi(number);
+    add(createNewNode(NULL, createShortData((short) atoi(number))), dataList);
     dc++;
     free(number);
     return dc - startDc;
 }
 
-size_t saveString(char *line, short *dataArray, int dc) {
+size_t saveString(char *line, linkedList *dataList, int dc) {
     //.string "abcdef"
     char *string;
     int i, startCopy, stringIdx;
@@ -108,17 +132,19 @@ size_t saveString(char *line, short *dataArray, int dc) {
         }
     }
     string[stringIdx] = '\0';
-    dataArray = realloc(dataArray, dc + strlen(string) + 1);
+    //*dataList = realloc(*dataList, dc + strlen(string) + 1);
 
     for (i = 0; i < strlen(string); i++) {
-        dataArray[dc] = (short) string[i];
+        add(createNewNode(NULL, createShortData(string[i])), dataList);
+        //(*dataList)[dc] = (short) string[i];
         dc++;
     }
-    dataArray[dc] = 0;
+    //(*dataList)[dc] = 0;
+    add(createNewNode(NULL, createShortData(0)), dataList);
     return strlen(string) + 1;
 }
 
-int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, short *instructionsArray, int ic) {
+int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList *instructionsList, int ic) {
     char *lineCopy, *pCopy, *operationName;
     int i, isFound, L;
     isFound = FALSE;
@@ -130,7 +156,7 @@ int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, short
     operationName = getToken(lineCopy, ' ', 0);
     for (i = 0; i < OPERATIONS_SIZE && !isFound; ++i) {
         if (isEqual(operationName, operationsTable[i])) {
-            L = saveCode(lineCopy, i, instructionsArray, ic);
+            L = saveCode(lineCopy, i, instructionsList, ic);
             isFound = TRUE;
         }
     }
@@ -140,7 +166,7 @@ int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, short
     return L;
 }
 
-int saveCode(char *command, int operationNumber, short *instructionsArray, int ic) {
+int saveCode(char *command, int operationNumber, linkedList *instructionsList, int ic) {
     int numberOfArgs, L;
     short binaryCommand;
     char *sourceArg, *targetArg;
@@ -162,7 +188,9 @@ int saveCode(char *command, int operationNumber, short *instructionsArray, int i
             L += calculateWordsToAddInJumpArg(targetArg);
             binaryCommand |= addSourceAndTargetParams(targetArg);
         }
-
+        binaryCommand |= addOperationCode((short) operationNumber);
+        add(createNewNode(NULL, createShortData(binaryCommand)), instructionsList);
+        addAdditionalWords(NULL, targetArg, instructionsList);
         free(targetArg);
     } else if (numberOfArgs == 2) {
         sourceArg = getArgument(command, 0);
@@ -182,15 +210,143 @@ int saveCode(char *command, int operationNumber, short *instructionsArray, int i
             L += calculateWordsToAddInJumpArg(targetArg);
             binaryCommand |= addSourceAndTargetParams(targetArg);
         }
-
+        binaryCommand |= addOperationCode((short) operationNumber);
+        add(createNewNode(NULL, createShortData(binaryCommand)), instructionsList);
+        addAdditionalWords(sourceArg, targetArg, instructionsList);
         free(sourceArg);
         free(targetArg);
+    } else {
+        binaryCommand |= addOperationCode((short) operationNumber);
+        add(createNewNode(NULL, createShortData(binaryCommand)), instructionsList);
     }
-    binaryCommand |= addOperationCode((short) operationNumber);
-    //instructionsArray = realloc(instructionsArray, sizeof(short));
-    //instructionsArray[ic] = binaryCommand;
-
     return L;
+}
+
+void addAdditionalWords(char *sourceArg, char *targetArg, linkedList *instructionsList) {
+    int sourceArgAddressMethod, targetArgAddressMethod;
+    sourceArgAddressMethod = -1;
+    if (sourceArg != NULL) {
+        sourceArgAddressMethod = getArgumentAddressMethod(sourceArg);
+    }
+    targetArgAddressMethod = getArgumentAddressMethod(targetArg);
+
+    if (sourceArgAddressMethod == REGISTER_ADDRESSING && sourceArgAddressMethod == targetArgAddressMethod) {
+        // In this case both of the arguments are registers => only one word needed
+        addRegistersWord(sourceArg, targetArg, instructionsList);
+    } else {
+        addArgumentWord(sourceArg, sourceArgAddressMethod, instructionsList);
+        addArgumentWord(targetArg, targetArgAddressMethod, instructionsList);
+    }
+}
+
+void addArgumentWord(const char *arg, int argMethodAddress, linkedList *instructionsList) {
+    switch (argMethodAddress) {
+        case JUMP_ADDRESSING:
+            addAdditionalWordsForJumpAddressing(arg, instructionsList);
+            break;
+        case IMMEDIATE_ADDRESSING:
+            add(createNewNode(NULL, createShortData(getImmediateNumber(arg))), instructionsList);
+            break;
+        case DIRECT_ADDRESSING:
+            add(createNewNode(copyStr(arg), NULL), instructionsList);
+            break;
+        case REGISTER_ADDRESSING:
+            //potential bug with the A,R,E
+            add(createNewNode(NULL, createShortData(addSourceRegisterToWord(getRegisterNumber(arg)))),
+                instructionsList);
+            break;
+        default:
+            break;
+    }
+}
+
+void addRegistersWord(const char *reg1, const char *reg2, linkedList *instructionsList) {
+    int num1, num2;
+    short word;
+    word = 0;
+    num1 = getRegisterNumber(reg1);
+    num2 = getRegisterNumber(reg2);
+    word |= addSourceRegisterToWord(num1);
+    word |= addTargetRegisterToWord(num2);
+    add(createNewNode(NULL, createShortData(word)), instructionsList);
+}
+
+void addAdditionalWordsForJumpAddressing(const char *arg, linkedList *instructionsList) {
+    char *param1, *param2;
+    int param1AddressMethod, param2AddressMethod;
+    add(createNewNode(getSymbolNameFromJumpArgument(arg), NULL), instructionsList);
+
+    param1 = getParam(arg, 0);
+    param2 = getParam(arg, 1);
+    param1AddressMethod = getArgumentAddressMethod(param1);
+    param2AddressMethod = getArgumentAddressMethod(param2);
+
+    if (param1AddressMethod == REGISTER_ADDRESSING && param2AddressMethod == REGISTER_ADDRESSING) {
+        addRegistersWord(param1, param2, instructionsList);
+    } else {
+        addParamWord(param1, param1AddressMethod, instructionsList);
+        addParamWord(param2, param2AddressMethod, instructionsList);
+    }
+    free(param1);
+    free(param2);
+}
+
+void *getSymbolNameFromJumpArgument(const char *arg) {
+    int i, symbolIdx;
+    char *symbolName;
+    symbolIdx = 0, i = 0;
+    symbolName = (char *) malloc(strlen(arg) * sizeof(char));
+
+    while (arg[i] != '(' && i < strlen(arg)) {
+        symbolName[symbolIdx] = arg[i];
+        symbolIdx++;
+        i++;
+    }
+    symbolName[symbolIdx] = '\0';
+    return symbolName;
+}
+
+void addParamWord(const char *param, int paramAddressMethod, linkedList *instructionsList) {
+    switch (paramAddressMethod) {
+        case IMMEDIATE_ADDRESSING:
+            add(createNewNode(NULL, createShortData(getImmediateNumber(param))), instructionsList);
+            break;
+        case DIRECT_ADDRESSING:
+            add(createNewNode(copyStr(param), NULL), instructionsList);
+            break;
+        case REGISTER_ADDRESSING:
+            add(createNewNode(NULL, createShortData(addTargetRegisterToWord(getRegisterNumber(param)))),
+                instructionsList);
+            break;
+        default:
+            break;
+    }
+}
+
+short getImmediateNumber(const char *arg) {
+    int i;
+    char *numberStr;
+    numberStr = (char *) malloc(strlen(arg) * sizeof(char));
+    for (i = 1; i < strlen(arg); ++i) {
+        numberStr[i - 1] = arg[i];
+    }
+    numberStr[strlen(arg) - 1] = '\0';
+    return (short) atoi(numberStr);
+}
+
+short addTargetRegisterToWord(int num) {
+    num <<= 2;
+    return (short) num;
+}
+
+short addSourceRegisterToWord(int num) {
+    num <<= 8;
+    return (short) num;
+}
+
+int getRegisterNumber(const char *registerName) {
+    // 48 is the ascii code of '0'
+    return registerName[1] - 48;
 }
 
 short addSourceAndTargetParams(const char *jumpCommand) {
@@ -235,7 +391,7 @@ int calculateWordsToAdd(int sourceAddressMethod, int targetAddressMethod) {
 
 short addTargetAddressMethod(int targetAddressMethod) {
     targetAddressMethod <<= 2;
-    return (short)targetAddressMethod;
+    return (short) targetAddressMethod;
 }
 
 short addSourceAddressMethod(short sourceAddressMethod) {

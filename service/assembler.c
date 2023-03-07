@@ -22,11 +22,11 @@
 #define TRUE 1
 #define FALSE 0
 
-int runFirstTransition(FILE *file, int ic, short *instructionsArray,
-                       int dc, short *dataArray, char *fileName);
+int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc, linkedList *dataList, char *fileName,
+                       linkedList *symbolsTable);
 
-int runSecondTransition(FILE *file, int ic, short *instructionsArray,
-                        int dc, short *dataArray, char *fileName);
+int runSecondTransition(FILE *file, int ic, linkedList *instructionsList,
+                        int dc, linkedList *dataList, char *fileName);
 
 void runTransitions(char *fileName, FILE *file);
 
@@ -49,19 +49,20 @@ void assembler(int argc, char **argv) {
 void runTransitions(char *fileName, FILE *file) {
     int isFileValid, i;
     int instructionsCounter, dataCounter;
-    short *instructionsArray, *dataArray;
+    linkedList *instructionsList, *dataList;
     linkedList *symbolsTable;  // id is row number data is the error , id is symbol name data is memory address
 
     isFileValid = 1;
     instructionsCounter = 0; //need to be initialized here?
-    instructionsArray = malloc(sizeof(short));
     dataCounter = 0;  //need to be initialized here?
-    dataArray = malloc(sizeof(short));
+    symbolsTable = createNewLinkedList();
+    instructionsList = createNewLinkedList();
+    dataList = createNewLinkedList();
 
-    isFileValid = runFirstTransition(file, instructionsCounter, instructionsArray, dataCounter, dataArray,
-                                     fileName);
+    isFileValid = runFirstTransition(file, instructionsCounter, instructionsList, dataCounter, dataList,
+                                     fileName, symbolsTable);
     if (isFileValid) {
-        isFileValid = runSecondTransition(file, instructionsCounter, instructionsArray, dataCounter, dataArray,
+        isFileValid = runSecondTransition(file, instructionsCounter, instructionsList, dataCounter, dataList,
                                           fileName);
         if (isFileValid) {
             //createFiles();
@@ -69,15 +70,12 @@ void runTransitions(char *fileName, FILE *file) {
     }
 }
 
-//// array of 7 shorts for the registers(only 14 bits needed)
-int runFirstTransition(FILE *file, int ic, short *instructionsArray,
-                       int dc, short *dataArray, char *fileName) {
+int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc, linkedList *dataList, char *fileName,
+                       linkedList *symbolsTable) {
     int isValid, rowCounter, symbolFlag;
     char *line, *lineCopy, *firstWord, *secondWord;
     const char **operationsTable;
-    linkedList *symbolsTable;
 
-    symbolsTable = createNewLinkedList();
     isValid = TRUE, rowCounter = 1, ic = 0, dc = 0, symbolFlag = 0;
     line = NULL;
     size_t len = 0;
@@ -107,7 +105,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                         n = createNewNode(firstWord, s);
                         add(n, symbolsTable);
                     }
-                    dc += saveGuidanceLine(lineCopy, symbolFlag, dataArray, dc); // use &dataArray
+                    dc += saveGuidanceLine(lineCopy, symbolFlag, dataList, dc);
                 } else {
                     isValid = FALSE;
                 }
@@ -138,7 +136,7 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
                     n = createNewNode(firstWord, s);
                     add(n, symbolsTable);
                 }
-                ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsArray, ic);  // use &iArray
+                ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList, ic);  // use &iArray
             } else {
                 isValid = FALSE;
             }
@@ -189,8 +187,8 @@ int runFirstTransition(FILE *file, int ic, short *instructionsArray,
 }
 
 
-int runSecondTransition(FILE *file, int ic, short *instructionsArray,
-                        int dc, short *dataArray, char *fileName) {
+int runSecondTransition(FILE *file, int ic, linkedList *instructionsList,
+                        int dc, linkedList *dataList, char *fileName) {
     //todo: validate arguments names with the symbolsTable
     int isValid, rowCounter;
     isValid = 1;

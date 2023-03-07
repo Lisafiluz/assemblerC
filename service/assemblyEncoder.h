@@ -5,7 +5,9 @@
 #ifndef ASSEMBLERC_ASSEMBLYENCODER_H
 #define ASSEMBLERC_ASSEMBLYENCODER_H
 
-int saveGuidanceLine(char *line, int symbolFlag, short *dataArray, int dc);
+#include "../structs/list.h"
 
-int saveCodeLine(char* line, int symbolFlag, const char **operationsTable, short* instructionsArray, int ic);
+int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc);
+
+int saveCodeLine(char* line, int symbolFlag, const char **operationsTable, linkedList *instructionsList, int ic);
 #endif //ASSEMBLERC_ASSEMBLYENCODER_H
