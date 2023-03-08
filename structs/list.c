@@ -88,4 +88,15 @@ void freeLinkedList(linkedList* list) {
     }
 }
 
+int getLength(const linkedList *list) {
+    node *curr = list->head;
+    int i;
+    i = 0;
+    while (curr != NULL) {
+        i++;
+        curr = curr->next;
+    }
+    return i;
+}
+
 

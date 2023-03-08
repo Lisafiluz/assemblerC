@@ -10,4 +10,6 @@
 int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc);
 
 int saveCodeLine(char* line, int symbolFlag, const char **operationsTable, linkedList *instructionsList, int ic);
+
+char *getBinaryEncodedWord(short word);
 #endif //ASSEMBLERC_ASSEMBLYENCODER_H

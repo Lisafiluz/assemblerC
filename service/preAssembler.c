@@ -81,8 +81,7 @@ void openMacros(FILE *file, FILE *outputFile) {
             linkedList *macroDataToAdd = getDataById(firstToken, macrosList);
             writeMacroDataToFile(macroDataToAdd, outputFile);
         } else {
-            fputs(lineCopy, outputFile);
-            fputs("\n", outputFile);
+            fprintf(outputFile, "%s\n", lineCopy);
             free(lineCopy);
         }
         free(firstToken);  // cause to a bug
@@ -128,8 +127,7 @@ void writeMacroDataToFile(linkedList *macro, FILE *outputFile) {
     if (isListNotEmpty(macro)) {
         node *currNode = macro->head;
         while (currNode != NULL) {
-            fputs((char *) currNode->data, outputFile);
-            fputs("\n", outputFile);
+            fprintf(outputFile, "%s\n", (char *) currNode->data);
             currNode = currNode->next;
         }
     }

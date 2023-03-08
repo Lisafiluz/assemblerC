@@ -13,7 +13,7 @@ int isFileExist(char *fileName) {
 
     file = fopen(fileName, "r");
     if (file == NULL) {
-        fprintf(stderr, "%s %s", strerror(errno), fileName);
+        fprintf(stderr, "%s %s\n", strerror(errno), fileName);
         isExist = 0;
     }
     fclose(file);

@@ -17,6 +17,8 @@ int isEqual(const char* str1, const char* str2);
 
 char *getFileName(char **argv, int i, char *suffix);
 
+char *getOutputFileName(const char *sourceFileName, const char *suffix);
+
 int isCommentLine(char *line);
 
 int isEmptyLine(char *line);
@@ -27,5 +29,5 @@ int isAlphaNumeric(const char *str);
 
 int isValidNumber(const char *number);
 
-char *copyStr(char *str);
+char *copyStr(const char *str);
 #endif //ASSEMBLERC_READERUTILS_H

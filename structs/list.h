@@ -32,4 +32,6 @@ int isListNotEmpty(linkedList *list);
 
 void freeLinkedList(linkedList *list);
 
+int getLength(const linkedList *list);
+
 #endif //ASSEMBLERC_LIST_H

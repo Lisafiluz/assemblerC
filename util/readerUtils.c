@@ -100,6 +100,15 @@ char *getFileName(char **const argv, int i, char *suffix) {
     return fileName;
 }
 
+char *getOutputFileName(const char *sourceFileName, const char *suffix) {
+    char *fileName;
+    fileName = (char *) calloc(strlen(sourceFileName) + 4, sizeof(char));
+    strcpy(fileName, sourceFileName);
+    strcat(fileName, suffix);
+    fileName[strlen(fileName)] = '\0';
+    return fileName;
+}
+
 int isCommentLine(char *line) {
     return strlen(line) > 0 && line[0] == ';';
 }
@@ -157,7 +166,7 @@ int isValidNumber(const char *number) {
     return TRUE;
 }
 
-char *copyStr(char *str) {
+char *copyStr(const char *str) {
     char *copy;
     copy = (char *) malloc((strlen(str) + 1) * sizeof(char));
     strcpy(copy, str);

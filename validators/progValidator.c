@@ -18,7 +18,7 @@ int validateProgramArgs(int argc, char **argv) {
 
     result = 1;
     if (argc < 2) {
-        fprintf(stderr, "No source files found");
+        fprintf(stderr, "No source files found\n");
         return SOURCE_FILES_NOT_PROVIDED;
     }
 

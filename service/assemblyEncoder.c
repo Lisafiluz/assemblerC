@@ -331,7 +331,7 @@ short getImmediateNumber(const char *arg) {
         numberStr[i - 1] = arg[i];
     }
     numberStr[strlen(arg) - 1] = '\0';
-    return (short) atoi(numberStr);
+    return (short) (atoi(numberStr) << 2);
 }
 
 short addTargetRegisterToWord(int num) {
@@ -402,4 +402,22 @@ short addSourceAddressMethod(short sourceAddressMethod) {
 short addOperationCode(short operationNumber) {
     operationNumber <<= 6;
     return operationNumber;
+}
+
+char *getBinaryEncodedWord(short word) {
+    char *encodedWord;
+    encodedWord = (char *) malloc(15 * sizeof (char));
+    int i;
+    i = 0;
+    while (i < 14) {
+        if (word & 1) {
+            encodedWord[13 - i] = '/';
+        } else {
+            encodedWord[13 - i] = '.';
+        }
+        word >>= 1;
+        i++;
+    }
+    encodedWord[i] = '\0';
+    return encodedWord;
 }

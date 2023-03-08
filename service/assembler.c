@@ -15,6 +15,7 @@
 #include "assemblyEncoder.h"
 #include "../structs/symbol.h"
 #include "../io/messagesHandler.h"
+#include "../structs/shortData.h"
 
 #define READ "r"
 #define WRITE "w"
@@ -25,10 +26,19 @@
 int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc, linkedList *dataList, char *fileName,
                        linkedList *symbolsTable);
 
-int runSecondTransition(FILE *file, int ic, linkedList *instructionsList,
-                        int dc, linkedList *dataList, char *fileName);
+int runSecondTransition(linkedList *symbolsTable, linkedList *instructionsList, char *fileName);
 
 void runTransitions(char *fileName, FILE *file);
+
+void addIcToDataSymbols(int ic, linkedList *symbolsTable);
+
+short getSymbolAddress(char *id, linkedList *symbolsTable);
+
+void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *symbolsTable, char *fileName);
+
+void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow);
+
+void addStartMemoryAddress(linkedList *symbolsTable);
 
 void assembler(int argc, char **argv) {
     int i;
@@ -62,11 +72,44 @@ void runTransitions(char *fileName, FILE *file) {
     isFileValid = runFirstTransition(file, instructionsCounter, instructionsList, dataCounter, dataList,
                                      fileName, symbolsTable);
     if (isFileValid) {
-        isFileValid = runSecondTransition(file, instructionsCounter, instructionsList, dataCounter, dataList,
+        isFileValid = runSecondTransition(symbolsTable, instructionsList,
                                           fileName);
         if (isFileValid) {
-            //createFiles();
+            createOutputFiles(instructionsList, dataList, symbolsTable, fileName);
+            //freeAll
         }
+    }
+}
+
+void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *symbolsTable, char *fileName) {
+    char *objectFileName, *firstLine;
+    FILE *objectOutputFile;
+    int memoryRow;
+    memoryRow = 100;
+
+    objectFileName = getOutputFileName(fileName, ".ob");
+    objectOutputFile = fopen(objectFileName, WRITE);
+    fprintf(objectOutputFile, "    %d  %d     \n", getLength(instructionsList), getLength(dataList));
+    addObjectRows(instructionsList, objectOutputFile, memoryRow);
+    addObjectRows(dataList, objectOutputFile, memoryRow + getLength(instructionsList));
+
+    free(objectFileName);
+    fclose(objectOutputFile);
+
+}
+
+void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow) {
+    node *currNode;
+    char *binaryEncodedWord;
+    currNode = pList->head;
+    while (currNode != NULL) {
+        short word;
+        word = ((shortData *)currNode->data)->value;
+        binaryEncodedWord = getBinaryEncodedWord(word);
+        fprintf(pFile, "%4d   %s\n", memoryRow, binaryEncodedWord);
+        free(binaryEncodedWord);
+        currNode = currNode->next;
+        memoryRow++;
     }
 }
 
@@ -142,58 +185,78 @@ int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc,
             }
 
             //free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
-            //free(secondWord);//todo: need to understand why doesn't work with this line
+            free(secondWord);//todo: need to understand why doesn't work with this line
         }
         rowCounter++;
         symbolFlag = 0;
         ////free
         free(lineCopy);
     }
+    addIcToDataSymbols(ic, symbolsTable);
+    addStartMemoryAddress(symbolsTable);
 //    if (postValidation(isValid)) {
 //        todo: create linkedList with all the symbols that are defined as arguments (exclude entry) in the file with the row
 //        todo: validate here if any of those symbols are not appear in the symbols table
 //        //updateDataSymbolsValues(symbolsTable, ic);
 //    }
-    /*
-     * 1.0.0 init IC<-0 DC<-0
-     * 2.0.0 while there is lines in the file
-     *      2.1.0 if getCommand() == SYMBOL
-     *          2.1.1 symbolFlag <- 1
-     *      2.2.0 else if this is .data/.string
-     *          2.2.1 if symbolFlag == 1
-     *              2.2.1.0 if this symbol already exist - ERROR
-     *              2.2.1.1 else add to the symbols table (data type) with value=DC
-     *              2.2.1.2 return to 2.0.0
-     *      2.3.0 else if this is .extern/.entry?
-     *          2.3.1 this is .extern?
-     *              2.3.1.0 add all operands command as symbols to the symbols tables with value=EXTERNAL_TYPE
-     *              2.2.1.1 return to 2.0.0
-     *      2.4.0 if symbolFlag == 1
-     *          2.4.1 if this symbol already exist - ERROR
-     *          2.4.2 else add to the symbols table with value=IC and "code" sign
-     *          2.4.3 search the operation in the operation names table
-     *              2.4.3.0 if no found -ERROR
-     *              2.4.3.1 else
-     *                  2.4.3.1.0 calculate L
-     *                  2.4.3.1.1 build the binary code of the first command
-     *                  2.4.3.1.2 IC <- IC + L
-     * 3.0.0 if there is any errors
-     *      3.1.0 print the error in nice manner
-     * 4.0.0 else
-     *      4.1.0 update symbols table
-     * 5.0.0 return isValid
-     * */
     return isValid;
 }
 
+void addStartMemoryAddress(linkedList *symbolsTable) {
+    node *currNode;
+    currNode = symbolsTable->head;
 
-int runSecondTransition(FILE *file, int ic, linkedList *instructionsList,
-                        int dc, linkedList *dataList, char *fileName) {
-    //todo: validate arguments names with the symbolsTable
-    int isValid, rowCounter;
-    isValid = 1;
-    rowCounter = 1;
+    while (currNode != NULL) {
+        ((symbol *) currNode->data)->value += 100;
+        currNode = currNode->next;
+    }
+}
+
+void addIcToDataSymbols(int ic, linkedList *symbolsTable) {
+    node *currNode;
+    currNode = symbolsTable->head;
+
+    while (currNode != NULL) {
+        if (((symbol *) currNode->data)->symbolType == DATA_TYPE) {
+            ((symbol *) currNode->data)->value += ic;
+        }
+        currNode = currNode->next;
+    }
+}
 
 
+int runSecondTransition(linkedList *symbolsTable, linkedList *instructionsList, char *fileName) {
+    int isValid;
+    node *currNode;
+
+    isValid = TRUE;
+    currNode = instructionsList->head;
+
+    while (currNode != NULL) {
+        char *id;
+        id = (char *) currNode->id;
+        if (id != NULL) {
+            if (isIdExist(id, symbolsTable)) {
+                currNode->data = createShortData(getSymbolAddress(id, symbolsTable));
+            } else {
+                printError(SYMBOL_NOT_FOUND, id, fileName, -1);
+                isValid = FALSE;
+            }
+        }
+        currNode = currNode->next;
+    }
     return isValid;
+}
+
+short getSymbolAddress(char *id, linkedList *symbolsTable) {
+    node *currNode;
+    currNode = symbolsTable->head;
+
+    while (currNode != NULL) {
+        if (isEqual((char *) currNode->id, id)) {
+            return (short) ((symbol *) currNode->data)->value;
+        }
+        currNode = currNode->next;
+    }
+    return -1;
 }

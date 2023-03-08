@@ -14,6 +14,7 @@ char *getFullErrorMessage(enum errorMessages errorType) {
         case TOO_MUCH_ARGUMENTS: return "Too much arguments in the command";
         case INVALID_COMMAND_NUMBER_ARGUMENTS: return "Invalid number of arguments for command";
         case OPERATION_NAME_NOT_FOUND: return "Operation name was not found";
+        case SYMBOL_NOT_FOUND: return "Symbol used but not found";
         default: return "Internal Error";
     }
 }
