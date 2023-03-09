@@ -58,6 +58,9 @@ int validateSymbolName(char *symbol, linkedList *symbolsTable, char *fileName, i
     } else if (isIdExist(symbol, symbolsTable)) {
         printError(DUPLICATE_SYMBOL_NAME, symbol, fileName, rowCounter);
         isValid = FALSE;
+    } else if (isValidRegister(symbol)) {
+        printError(SYMBOL_CANT_BE_REGISTER, symbol, fileName, rowCounter);
+        isValid = FALSE;
     }
     return isValid;
 }
@@ -315,7 +318,7 @@ int isValidRegister(const char *argument) {
 }
 
 int isValidSymbol(const char *argument) {
-    return isalpha(argument[0]) && !hasSpaces(argument) && isAlphaNumeric(argument);
+    return isalpha(argument[0]) && !hasSpaces(argument) && isAlphaNumeric(argument) && !isValidRegister(argument);
 }
 
 int isValidJumpAddressArgMethod(char *argument) {

@@ -9,8 +9,9 @@ char *getFullErrorMessage(enum errorMessages errorType) {
         case SYMBOL_EXCEED_MAX_LEN: return "Symbol name exceed max len of 30 characters";
         case SYMBOL_IS_EMPTY: return "Symbol name cannot be empty";
         case NOT_A_VALID_NUMBER: return "Not a valid number";
-        case DUPLICATE_SYMBOL_NAME: return "duplicate symbol name";
-        case EMPTY_NUMBER: return "empty number";
+        case DUPLICATE_SYMBOL_NAME: return "Duplicate symbol name";
+        case SYMBOL_CANT_BE_REGISTER: return "Symbol name cannot be the same as register name";
+        case EMPTY_NUMBER: return "Empty number";
         case NOT_A_VALID_STRING: return "Not a valid String";
         case TOO_MUCH_ARGUMENTS: return "Too much arguments in the command";
         case INVALID_COMMAND_NUMBER_ARGUMENTS: return "Invalid number of arguments for command";

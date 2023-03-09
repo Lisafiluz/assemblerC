@@ -4,7 +4,7 @@
 MAIN: mov r3 ,LENGTH
 ;comment row
 LOOP: jmp L1(#-1,r6)
-mcr r1
+mcr m1
 sub r1, r4
 bne L3
 endmcr
