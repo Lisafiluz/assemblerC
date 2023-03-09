@@ -7,8 +7,6 @@
 
 #include <stdio.h>
 
-char *readData(FILE *fp);
-
 char *trim(char *str);
 
 char *getToken(const char *line, char delim, int tokenNumber);

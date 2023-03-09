@@ -34,7 +34,7 @@ void addIcToDataSymbols(int ic, linkedList *symbolsTable);
 
 short getSymbolAddress(char *id, linkedList *symbolsTable);
 
-void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *symbolsTable, char *fileName);
+void createOutputFiles(linkedList *instructionsList, linkedList *dataList, char *fileName);
 
 void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow);
 
@@ -57,12 +57,12 @@ void assembler(int argc, char **argv) {
 }
 
 void runTransitions(char *fileName, FILE *file) {
-    int isFileValid, i;
+    int isFileValid;
     int instructionsCounter, dataCounter;
     linkedList *instructionsList, *dataList;
     linkedList *symbolsTable;  // id is row number data is the error , id is symbol name data is memory address
 
-    isFileValid = 1;
+    isFileValid = TRUE;
     instructionsCounter = 0; //need to be initialized here?
     dataCounter = 0;  //need to be initialized here?
     symbolsTable = createNewLinkedList();
@@ -75,14 +75,14 @@ void runTransitions(char *fileName, FILE *file) {
         isFileValid = runSecondTransition(symbolsTable, instructionsList,
                                           fileName);
         if (isFileValid) {
-            createOutputFiles(instructionsList, dataList, symbolsTable, fileName);
+            createOutputFiles(instructionsList, dataList, fileName);
             //freeAll
         }
     }
 }
 
-void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *symbolsTable, char *fileName) {
-    char *objectFileName, *firstLine;
+void createOutputFiles(linkedList *instructionsList, linkedList *dataList, char *fileName) {
+    char *objectFileName;
     FILE *objectOutputFile;
     int memoryRow;
     memoryRow = 100;
@@ -106,7 +106,7 @@ void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow) {
         short word;
         word = ((shortData *)currNode->data)->value;
         binaryEncodedWord = getBinaryEncodedWord(word);
-        fprintf(pFile, "%4d   %s\n", memoryRow, binaryEncodedWord);
+        fprintf(pFile, "%04d   %s\n", memoryRow, binaryEncodedWord);
         free(binaryEncodedWord);
         currNode = currNode->next;
         memoryRow++;

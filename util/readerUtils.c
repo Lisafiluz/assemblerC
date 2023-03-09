@@ -17,28 +17,6 @@ char *ltrim(char *str);
 
 char *rtrim(char *str);
 
-//todo: 1.understand 2.use other variable names 3. read in the book for alternate solution
-char *readData(FILE *fp) {
-    int size, len;
-    char *str;
-    int ch;
-
-    size = START_SIZE;
-    len = 0;  // todo: understand this type size_t
-    str = realloc(NULL, sizeof(*str) * START_SIZE);  /*size is start size*/
-    // if (!str)return str;  //todo probably for not enough memory, remove it or find it in the book
-    while (EOF != (ch = fgetc(fp)) && ch != '\n') {
-        str[len++] = ch;
-        if (len == size) {
-            str = realloc(str, sizeof(*str) * (size += ADD_SIZE));
-            //if (!str)return str;
-        }
-    }
-    str[len++] = '\0';
-
-    return realloc(str, sizeof(*str) * len);
-}
-
 char *trim(char *str) {
     str = ltrim(str);
     str = rtrim(str);

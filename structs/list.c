@@ -3,7 +3,6 @@
 //
 #include <stdlib.h>
 #include "list.h"
-#include "macro.h"
 #include "string.h"
 #include "../util/readerUtils.h"
 

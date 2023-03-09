@@ -8,7 +8,6 @@
 #include "assemblyEncoder.h"
 #include "../util/assemblyUtils.h"
 #include "../util/readerUtils.h"
-#include "../structs/list.h"
 #include "../structs/shortData.h"
 
 #define TRUE 1
@@ -26,7 +25,7 @@ size_t saveString(char *line, linkedList *dataList, int dc);
 
 size_t saveData(char *line, linkedList *dataList, int dc);
 
-int saveCode(char *command, int operationNumber, linkedList *instructionsList, int ic);
+int saveCode(char *command, int operationNumber, linkedList *instructionsList);
 
 short addOperationCode(short operationNumber);
 
@@ -156,7 +155,7 @@ int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linke
     operationName = getToken(lineCopy, ' ', 0);
     for (i = 0; i < OPERATIONS_SIZE && !isFound; ++i) {
         if (isEqual(operationName, operationsTable[i])) {
-            L = saveCode(lineCopy, i, instructionsList, ic);
+            L = saveCode(lineCopy, i, instructionsList);
             isFound = TRUE;
         }
     }
@@ -166,7 +165,7 @@ int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linke
     return L;
 }
 
-int saveCode(char *command, int operationNumber, linkedList *instructionsList, int ic) {
+int saveCode(char *command, int operationNumber, linkedList *instructionsList) {
     int numberOfArgs, L;
     short binaryCommand;
     char *sourceArg, *targetArg;
@@ -406,7 +405,7 @@ short addOperationCode(short operationNumber) {
 
 char *getBinaryEncodedWord(short word) {
     char *encodedWord;
-    encodedWord = (char *) malloc(15 * sizeof (char));
+    encodedWord = (char *) malloc(15 * sizeof(char));
     int i;
     i = 0;
     while (i < 14) {

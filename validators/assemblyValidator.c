@@ -5,7 +5,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include "assemblyValidator.h"
 #include "../enums/enums.h"
 #include "../util/readerUtils.h"
@@ -27,8 +26,6 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter);
 int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, int rowCounter);
 
 int operationValidator(char *command, int operationNumber, char *fileName, int rowNumber);
-
-int validateMov(char *command);
 
 int validateNumberOfArgs(int numberOfArgs, int operationNumber);
 
@@ -273,19 +270,6 @@ int validateNumberOfArgs(int numberOfArgs, int operationNumber) {
         default:
             return FALSE;
     }
-}
-
-int validateMov(char *command) {
-    int isValid;
-    isValid = TRUE;
-    // number of arguments
-    // addressMethods per arguments
-
-
-    return isValid;
-}
-int postValidations(int isValid, linkedList *symbolsTable) {
-    return 0;
 }
 
 int isData(const char *line, int i) {

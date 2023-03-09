@@ -14,5 +14,4 @@ typedef struct symbol {
 
 symbol *createSymbol(char *symbolName, enum symbolTypes type, int value);
 
-
 #endif //ASSEMBLERC_SYMBOL_H
