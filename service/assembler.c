@@ -23,22 +23,28 @@
 #define TRUE 1
 #define FALSE 0
 
-int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc, linkedList *dataList, char *fileName,
-                       linkedList *symbolsTable);
+int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dataList, char *fileName,
+                       linkedList *symbolsTable, linkedList *entries);
 
 int runSecondTransition(linkedList *symbolsTable, linkedList *instructionsList, char *fileName);
 
-void runTransitions(char *fileName, FILE *file);
+void runTransitions(char *fileName, FILE *file, const char *fileNameTemplate);
 
 void addIcToDataSymbols(int ic, linkedList *symbolsTable);
 
 short getSymbolAddress(char *id, linkedList *symbolsTable);
 
-void createOutputFiles(linkedList *instructionsList, linkedList *dataList, char *fileName);
+void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *entries, linkedList *symbolsTable, const char *fileName);
 
 void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow);
 
 void addStartMemoryAddress(linkedList *symbolsTable);
+
+void createObjectFile(linkedList *instructionsList, linkedList *dataList, const char *fileName);
+
+void createEntriesFile(linkedList *entries, linkedList *symbolsTable, const char *fileName);
+
+void createExternalsFile(linkedList *instructionsList, linkedList *symbolsTable, const char *fileName);
 
 void assembler(int argc, char **argv) {
     int i;
@@ -49,39 +55,91 @@ void assembler(int argc, char **argv) {
         fileName = getFileName(argv, i, SOURCE_FILE_SUFFIX);
         if (isFileExist(fileName)) {
             sourceFile = fopen(fileName, READ);
-            runTransitions(fileName, sourceFile);
+            runTransitions(fileName, sourceFile, argv[i]);
             free(fileName);
             fclose(sourceFile);
         }
     }
 }
 
-void runTransitions(char *fileName, FILE *file) {
+void runTransitions(char *fileName, FILE *file, const char *fileNameTemplate) {
     int isFileValid;
-    int instructionsCounter, dataCounter;
-    linkedList *instructionsList, *dataList;
-    linkedList *symbolsTable;  // id is row number data is the error , id is symbol name data is memory address
+    linkedList *instructionsList, *dataList, *symbolsTable, *entries;  // id is row number data is the error , id is symbol name data is memory address
 
     isFileValid = TRUE;
-    instructionsCounter = 0; //need to be initialized here?
-    dataCounter = 0;  //need to be initialized here?
     symbolsTable = createNewLinkedList();
     instructionsList = createNewLinkedList();
     dataList = createNewLinkedList();
+    entries = createNewLinkedList();
 
-    isFileValid = runFirstTransition(file, instructionsCounter, instructionsList, dataCounter, dataList,
-                                     fileName, symbolsTable);
+    isFileValid = runFirstTransition(file, instructionsList, dataList, fileName, symbolsTable, entries);
     if (isFileValid) {
-        isFileValid = runSecondTransition(symbolsTable, instructionsList,
-                                          fileName);
+        isFileValid = runSecondTransition(symbolsTable, instructionsList, fileName);
         if (isFileValid) {
-            createOutputFiles(instructionsList, dataList, fileName);
-            //freeAll
+            createOutputFiles(instructionsList, dataList, entries, symbolsTable, fileNameTemplate);
+            freeLinkedList(instructionsList);
+            freeLinkedList(dataList);
+            freeLinkedList(symbolsTable);
+            freeLinkedList(entries);
         }
     }
 }
 
-void createOutputFiles(linkedList *instructionsList, linkedList *dataList, char *fileName) {
+void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *entries, linkedList *symbolsTable, const char *fileName) {
+    createObjectFile(instructionsList, dataList, fileName);
+    createEntriesFile(entries, symbolsTable, fileName);
+    createExternalsFile(instructionsList, symbolsTable, fileName);
+}
+
+void createExternalsFile(linkedList *instructionsList, linkedList *symbolsTable, const char *fileName) {
+    char *externalsFileName;
+    FILE *externalsOutputFile;
+    int isExist, i;
+    isExist = FALSE;
+    node *currNode;
+    i = 100;
+    currNode = instructionsList->head;
+    while (currNode != NULL) {
+        if (currNode->id!=NULL) {
+            // this is line with symbol
+            if (((symbol*)getDataById(currNode->id, symbolsTable))->symbolType == EXTERNAL_TYPE) {
+                if (!isExist) {
+                    externalsFileName = getOutputFileName(fileName, ".ext");
+                    externalsOutputFile = fopen(externalsFileName, WRITE);
+                    isExist = TRUE;
+                }
+                fprintf(externalsOutputFile, "%s         %d\n", (char*)currNode->id, i);
+            }
+        }
+        i++;
+        currNode = currNode->next;
+    }
+    if (isExist) {
+        fclose(externalsOutputFile);
+        free(externalsFileName);
+    }
+}
+
+void createEntriesFile(linkedList *entries, linkedList *symbolsTable, const char *fileName) {
+    char *entriesFileName;
+    FILE *entriesOutputFile;
+    if (isListNotEmpty(entries)) {
+        entriesFileName = getOutputFileName(fileName, ".ent");
+        entriesOutputFile = fopen(entriesFileName, WRITE);
+        node* currNode;
+        int address;
+        currNode = entries->head;
+        while (currNode != NULL) {
+            address = ((symbol *)getDataById(currNode->id, symbolsTable))->value;
+            fprintf(entriesOutputFile, "%s         %d\n", (char*)currNode->id, address);
+            currNode = currNode->next;
+        }
+        free(entriesFileName);
+        fclose(entriesOutputFile);
+    }
+}
+
+void createObjectFile(linkedList *instructionsList, linkedList *dataList, const char *fileName) {
     char *objectFileName;
     FILE *objectOutputFile;
     int memoryRow;
@@ -95,7 +153,6 @@ void createOutputFiles(linkedList *instructionsList, linkedList *dataList, char 
 
     free(objectFileName);
     fclose(objectOutputFile);
-
 }
 
 void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow) {
@@ -113,10 +170,11 @@ void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow) {
     }
 }
 
-int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc, linkedList *dataList, char *fileName,
-                       linkedList *symbolsTable) {
+int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dataList, char *fileName,
+                       linkedList *symbolsTable, linkedList *entries) {
+    int dc, ic;
     int isValid, rowCounter, symbolFlag;
-    char *line, *lineCopy, *firstWord, *secondWord;
+    char *line, *lineCopy, *pLineCopy, *firstWord, *secondWord;
     const char **operationsTable;
 
     isValid = TRUE, rowCounter = 1, ic = 0, dc = 0, symbolFlag = 0;
@@ -126,12 +184,12 @@ int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc,
 
     while (getline(&line, &len, file) != -1) {
         lineCopy = copyStr(line);
+        pLineCopy = lineCopy;
         lineCopy = trim(lineCopy);
         if (!isCommentLine(lineCopy) && !isEmptyLine(lineCopy)) {
             firstWord = getToken(lineCopy, ' ', 0);
             if (isSymbol(firstWord)) {
-                firstWord[strlen(firstWord) - 1] = '\0';  // Without the ':' at the end. maybe not a good practice
-                //firstWord = getToken(firstWord, ':', 0); // cant free the previous firstWord
+                firstWord[strlen(firstWord) - 1] = '\0';
                 if (validateSymbolName(firstWord, symbolsTable, fileName, rowCounter)) {
                     symbolFlag = 1;
                 } else {
@@ -144,8 +202,10 @@ int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc,
                     if (symbolFlag) {
                         node *n;
                         symbol *s;
-                        s = createSymbol(firstWord, DATA_TYPE, dc);
-                        n = createNewNode(firstWord, s);
+                        char* symbolName;
+                        symbolName = copyStr(firstWord);
+                        s = createSymbol(symbolName, DATA_TYPE, dc);
+                        n = createNewNode(symbolName, s);
                         add(n, symbolsTable);
                     }
                     dc += saveGuidanceLine(lineCopy, symbolFlag, dataList, dc);
@@ -161,8 +221,8 @@ int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc,
                         char *externalSymbolName;
                         node *n;
                         symbol *s;
-                        externalSymbolName = getToken(lineCopy, ' ', symbolFlag);
-                        s = createSymbol(externalSymbolName, EXTERNAL_TYPE, dc);
+                        externalSymbolName = getToken(lineCopy, ' ', symbolFlag + 1);
+                        s = createSymbol(externalSymbolName, EXTERNAL_TYPE, 0);
                         n = createNewNode(externalSymbolName, s);
                         add(n, symbolsTable);
                         //dc += saveGuidanceLine(lineCopy, dataArray);
@@ -170,35 +230,35 @@ int runFirstTransition(FILE *file, int ic, linkedList *instructionsList, int dc,
                     } else {
                         isValid = FALSE;
                     }
+                } else {
+                    //entry
+                    add(createNewNode(getToken(lineCopy, ' ', symbolFlag + 1), NULL), entries);
                 }
             } else if (validateCodeLine(lineCopy, symbolFlag, operationsTable, fileName, rowCounter)) {
                 if (symbolFlag) {
                     node *n;
                     symbol *s;
-                    s = createSymbol(firstWord, CODE_TYPE, ic);
-                    n = createNewNode(firstWord, s);
+                    char* symbolName;
+                    symbolName = copyStr(firstWord);
+                    s = createSymbol(symbolName, CODE_TYPE, ic);
+                    n = createNewNode(symbolName, s);
                     add(n, symbolsTable);
                 }
-                ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList, ic);  // use &iArray
+                ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList, ic);
             } else {
                 isValid = FALSE;
             }
 
-            //free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
+            free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
             free(secondWord);//todo: need to understand why doesn't work with this line
         }
         rowCounter++;
         symbolFlag = 0;
         ////free
-        free(lineCopy);
+        free(pLineCopy);
     }
     addIcToDataSymbols(ic, symbolsTable);
     addStartMemoryAddress(symbolsTable);
-//    if (postValidation(isValid)) {
-//        todo: create linkedList with all the symbols that are defined as arguments (exclude entry) in the file with the row
-//        todo: validate here if any of those symbols are not appear in the symbols table
-//        //updateDataSymbolsValues(symbolsTable, ic);
-//    }
     return isValid;
 }
 
@@ -207,7 +267,9 @@ void addStartMemoryAddress(linkedList *symbolsTable) {
     currNode = symbolsTable->head;
 
     while (currNode != NULL) {
-        ((symbol *) currNode->data)->value += 100;
+        if (((symbol *) currNode->data)->symbolType != EXTERNAL_TYPE) {
+            ((symbol *) currNode->data)->value += 100;
+        }
         currNode = currNode->next;
     }
 }
@@ -251,12 +313,24 @@ int runSecondTransition(linkedList *symbolsTable, linkedList *instructionsList, 
 short getSymbolAddress(char *id, linkedList *symbolsTable) {
     node *currNode;
     currNode = symbolsTable->head;
-
+    short address;
+    address = -1;
     while (currNode != NULL) {
         if (isEqual((char *) currNode->id, id)) {
-            return (short) ((symbol *) currNode->data)->value;
+            address = (short) (((symbol *) currNode->data)->value << 2);
+            switch (((symbol *) currNode->data)->symbolType) {
+                case DATA_TYPE:
+                case CODE_TYPE:
+                    address += 2;
+                    break;
+                case EXTERNAL_TYPE:
+                    address += 1;
+                    break;
+                default:
+                    break;
+            }
         }
         currNode = currNode->next;
     }
-    return -1;
+    return address;
 }

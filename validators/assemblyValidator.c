@@ -17,7 +17,7 @@
 #define FALSE 0
 #define OPERATIONS_SIZE 16
 
-int getNextTokenIndex(char *str, int fromIdx);
+int getNextTokenIndex(const char *str, int fromIdx);
 
 int isData(const char *line, int i);
 
@@ -126,7 +126,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     return isValid;
 }
 
-int validateExternalGuidanceLine(char *line, int symbolFlag, char *fileName, int rowCounter) {
+int validateExternalGuidanceLine(const char *line, int symbolFlag, char *fileName, int rowCounter) {
     // the symbol should not be existed in the whole file
     int isValid, index;
     char *lineCopy;
@@ -136,6 +136,7 @@ int validateExternalGuidanceLine(char *line, int symbolFlag, char *fileName, int
     if (symbolFlag) {
         index = getNextTokenIndex(lineCopy, index);
     }
+    index = getNextTokenIndex(lineCopy, index);  // index of argument
     index = getNextTokenIndex(lineCopy, index);
     if (index != strlen(lineCopy)) {
         isValid = FALSE;
@@ -282,11 +283,11 @@ int isData(const char *line, int i) {
            line[i + 4] == data[4];
 }
 
-int getNextTokenIndex(char *str, int fromIdx) {
+int getNextTokenIndex(const char *str, int fromIdx) {
     int i;
     i = fromIdx;
-    while (!isspace(str[i])) i++;
-    while (isspace(str[i])) i++;
+    while (!isspace(str[i]) && i < strlen(str)) i++;
+    while (isspace(str[i]) && i < strlen(str)) i++;
     return i;
 }
 

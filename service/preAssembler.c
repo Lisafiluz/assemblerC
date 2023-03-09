@@ -52,7 +52,7 @@ void preAssembler(int argc, char **argv) {
 void openMacros(FILE *file, FILE *outputFile) {
     linkedList *macrosList, *macroData;
     node *macro, *row;
-    char *firstToken, *macroName, *line, *lineCopy;
+    char *firstToken, *macroName, *line, *lineCopy, *pLineCopy;
     void *macroDataRowCounter;
     int macroFlag;
 
@@ -62,6 +62,7 @@ void openMacros(FILE *file, FILE *outputFile) {
     macroFlag = 0;
     while (getline(&line, &len, file) != -1) {
         lineCopy = copyStr(line);
+        pLineCopy = lineCopy;
         lineCopy = trim(lineCopy);
         firstToken = getToken(lineCopy, ' ', 0);
         if (isEqual(firstToken, END_MACRO)) {
@@ -82,9 +83,9 @@ void openMacros(FILE *file, FILE *outputFile) {
             writeMacroDataToFile(macroDataToAdd, outputFile);
         } else {
             fprintf(outputFile, "%s\n", lineCopy);
-            free(lineCopy);
+            free(pLineCopy);
         }
-        free(firstToken);  // cause to a bug
+        free(firstToken);
     }
     if (line) {
         free(line);
@@ -112,7 +113,6 @@ char *getMacroName(char *line) {
     while (isspace(*line)) {
         line++;
     }
-
     macroName = (char *) malloc((strlen(line) + 1) * sizeof(char));
     i = 0;
     while (!isspace(line[i]) && i < strlen(line)) {
