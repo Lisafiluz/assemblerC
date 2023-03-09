@@ -10,6 +10,7 @@
 #include "../structs/list.h"
 #include "../util/readerUtils.h"
 #include "../validators/fileValidator.h"
+#include "../validators/assemblyValidator.h"
 
 #define READ "r"
 #define WRITE "w"
@@ -17,8 +18,10 @@
 #define TARGET_FILE_SUFFIX ".am"
 #define MACRO "mcr"
 #define END_MACRO "endmcr"
+#define TRUE 1
+#define FALSE 0
 
-void openMacros(FILE *file, FILE *outputFile);
+int openMacros(FILE *file, FILE *outputFile);
 
 void writeMacroDataToFile(linkedList *macro, FILE *outputFile);
 
@@ -26,12 +29,13 @@ char *getMacroName(char *line);
 
 void freeMacros(linkedList *pList);
 
-void preAssembler(int argc, char **argv) {
-    int i;
+int preAssembler(int argc, char **argv) {
+    int i, isValid;
     char *fileName, *outputFileName;
     FILE *sourceFile, *outputFile;
-
+    isValid = TRUE;
     for (i = 1; i < argc; i++) {
+        int fileValid;
         fileName = getFileName(argv, i, SOURCE_FILE_SUFFIX);
         outputFileName = getFileName(argv, i, TARGET_FILE_SUFFIX);
         if (isFileExist(fileName)) {
@@ -41,21 +45,25 @@ void preAssembler(int argc, char **argv) {
             free(fileName);
             free(outputFileName);
 
-            openMacros(sourceFile, outputFile);
-
+            fileValid = openMacros(sourceFile, outputFile);
+            if (!fileValid) {
+                isValid = FALSE;
+            }
             fclose(sourceFile);
             fclose(outputFile);
         }
     }
+    return isValid;
 }
 
-void openMacros(FILE *file, FILE *outputFile) {
+int openMacros(FILE *file, FILE *outputFile) {
     linkedList *macrosList, *macroData;
     node *macro, *row;
     char *firstToken, *macroName, *line, *lineCopy, *pLineCopy;
     void *macroDataRowCounter;
-    int macroFlag;
+    int macroFlag, isValid;
 
+    isValid = TRUE;
     macrosList = createNewLinkedList();
     line = NULL;
     size_t len = 0;
@@ -78,6 +86,9 @@ void openMacros(FILE *file, FILE *outputFile) {
             macroFlag = 1;
             macroDataRowCounter = (void *) 1;
             macroName = getMacroName(lineCopy);
+            if (!validateMacroName(macroName)) {
+                isValid = FALSE;
+            }
         } else if (isIdExist(firstToken, macrosList)) {
             linkedList *macroDataToAdd = getDataById(firstToken, macrosList);
             writeMacroDataToFile(macroDataToAdd, outputFile);
@@ -91,6 +102,7 @@ void openMacros(FILE *file, FILE *outputFile) {
         free(line);
     }
     freeMacros(macrosList);
+    return isValid;
 }
 
 void freeMacros(linkedList *pList) {

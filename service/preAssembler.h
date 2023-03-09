@@ -4,5 +4,5 @@
 
 #ifndef ASSEMBLERC_PREASSEMBLER_H
 #define ASSEMBLERC_PREASSEMBLER_H
-void preAssembler(int argc, char **argv);
+int preAssembler(int argc, char **argv);
 #endif //ASSEMBLERC_PREASSEMBLER_H

@@ -10,6 +10,7 @@ enum symbolTypes {
 extern enum symbolTypes symbolTypes;
 
 enum errorMessages {
+    INVALID_MACRO_NAME,
     SYMBOL_EXCEED_MAX_LEN,
     SYMBOL_IS_EMPTY,
     SYMBOL_SYNTAX_NAME,

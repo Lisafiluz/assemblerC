@@ -16,7 +16,9 @@ void runAssembler(int argc, char **argv) {
 
     continueRunAsm = validateProgramArgs(argc, argv);
     if (continueRunAsm) {
-        preAssembler(argc, argv);
-        assembler(argc, argv);
+        continueRunAsm = preAssembler(argc, argv);
+        if (continueRunAsm) {
+            assembler(argc, argv);
+        }
     }
 }

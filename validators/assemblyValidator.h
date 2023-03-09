@@ -7,6 +7,8 @@
 
 #include "../structs/list.h"
 
+int validateMacroName(const char* macroName);
+
 int validateSymbolName(char *symbol, linkedList *symbolsTable, char *fileName, int rowCounter);
 
 int validateDataGuidanceLine(char *line, int symbolFlag, char *fileName, int rowCounter);

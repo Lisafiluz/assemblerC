@@ -33,6 +33,16 @@ int validateSourceArgAddressMethod(int addressMethod, int operationNumber);
 
 int validateTargetArgAddressMethod(int addressMethod, int operationNumber);
 
+int validateMacroName(const char* macroName) {
+    int isValid;
+    isValid = TRUE;
+    if (isValidRegister(macroName)) {
+        printError(INVALID_MACRO_NAME, macroName, NULL, -1);
+        isValid = FALSE;
+    }
+    return isValid;
+}
+
 int validateSymbolName(char *symbol, linkedList *symbolsTable, char *fileName, int rowCounter) {
     int isValid;
     isValid = TRUE;
