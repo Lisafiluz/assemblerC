@@ -18,10 +18,6 @@
 //#define INVALID_ARGUMENT '-1'
 
 
-int isSymbol(char *str) {
-    return str[strlen(str) - 1] == ':';
-}
-
 int isDataGuidance(char *str) {
     return isEqual(str, DATA) || isEqual(str, STRING);
 }

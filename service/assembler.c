@@ -253,7 +253,7 @@ int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dat
                         n = createNewNode(symbolName, s);
                         add(n, symbolsTable);
                     }
-                    ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList, ic);
+                    ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList);
                 } else {
                     isValid = FALSE;
                 }

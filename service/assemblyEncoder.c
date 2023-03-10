@@ -13,9 +13,6 @@
 #define TRUE 1
 #define FALSE 0
 #define OPERATIONS_SIZE 16
-#define ADD_ABSOLUTE 0
-#define ADD_EXTERNAL 1
-#define ADD_RELOCATABLE 0 // ???2
 #define IMMEDIATE_ADDRESSING 0
 #define DIRECT_ADDRESSING 1
 #define JUMP_ADDRESSING 2
@@ -143,7 +140,7 @@ size_t saveString(char *line, linkedList *dataList, int dc) {
     return strlen(string) + 1;
 }
 
-int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList *instructionsList, int ic) {
+int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList *instructionsList) {
     char *lineCopy, *pCopy, *operationName;
     int i, isFound, L;
     isFound = FALSE;
@@ -176,11 +173,6 @@ int saveCode(char *command, int operationNumber, linkedList *instructionsList) {
         targetArg = getArgument(command, 0);
         targetAddressMethod = getArgumentAddressMethod(targetArg);
         L += calculateWordsToAdd(-1, targetAddressMethod);
-        if (targetAddressMethod == 1 || targetAddressMethod == 2) {
-            binaryCommand += ADD_RELOCATABLE; //or external??
-        } else {
-            binaryCommand += ADD_ABSOLUTE;
-        }
         binaryCommand |= addTargetAddressMethod(targetAddressMethod);
 
         if (targetAddressMethod == JUMP_ADDRESSING) {
@@ -197,12 +189,6 @@ int saveCode(char *command, int operationNumber, linkedList *instructionsList) {
         targetArg = getArgument(command, 1);
         targetAddressMethod = getArgumentAddressMethod(targetArg);
         L += calculateWordsToAdd(sourceAddressMethod, targetAddressMethod);
-        if (sourceAddressMethod == 1 || sourceAddressMethod == 2 ||
-            targetAddressMethod == 1 || targetAddressMethod == 2) {
-            binaryCommand += ADD_RELOCATABLE; //or external??
-        } else {
-            binaryCommand += ADD_ABSOLUTE;
-        }
         binaryCommand |= addSourceAddressMethod((short) sourceAddressMethod);
         binaryCommand |= addTargetAddressMethod((short) targetAddressMethod);
         if (targetAddressMethod == JUMP_ADDRESSING) {
@@ -351,7 +337,6 @@ int getRegisterNumber(const char *registerName) {
 short addSourceAndTargetParams(const char *jumpCommand) {
     char *param1, *param2;
     int param1AddressMethod, param2AddressMethod, binaryCommandToAdd;
-    binaryCommandToAdd = 0;
     param1 = getParam(jumpCommand, 0);
     param2 = getParam(jumpCommand, 1);
     param1AddressMethod = getArgumentAddressMethod(param1);

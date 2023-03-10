@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include <stdlib.h>
 #include "progValidator.h"
 #include "fileValidator.h"

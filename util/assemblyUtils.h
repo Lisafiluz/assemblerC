@@ -5,8 +5,6 @@
 #ifndef ASSEMBLERC_ASSEMBLYUTILS_H
 #define ASSEMBLERC_ASSEMBLYUTILS_H
 
-int isSymbol(char *str);
-
 int isDataGuidance(char *str);
 
 int isExternalGuidance(char *str);

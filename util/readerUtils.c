@@ -2,14 +2,11 @@
 // Created by Iluz, Lisaf on 14/01/2023.
 //
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include "readerUtils.h"
 
-#define START_SIZE 80  // Each Assembly sentence has 80 chars
-#define ADD_SIZE 64  // In case we need to get Staring that bigger than 80 chars
 #define TRUE 1
 #define FALSE 0
 
