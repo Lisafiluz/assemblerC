@@ -143,7 +143,7 @@ someLabel44:bne
 someLabel45:jsr
 someLabel46:red
 someLabel47:prn
-;unknown words
+
 COOK tasty, pie
     .Data 12, 675
     .sTring "Whoops"

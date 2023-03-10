@@ -49,10 +49,10 @@ char *getToken(const char *line, const char delim, int tokenNumber) {
     tokenIdx = 0;
 
     for (; tokenNumber > 0; tokenNumber--) {
-        while (line[i] != delim) {
+        while (line[i] != delim && i < strlen(line)) {
             i++;
         }
-        while (line[i] == delim) {
+        while (line[i] == delim && i < strlen(line)) {
             i++;
         }
     }
@@ -61,7 +61,7 @@ char *getToken(const char *line, const char delim, int tokenNumber) {
         i++;
         tokenIdx++;
     }
-    token[tokenIdx + 1] = '\0';
+    token[tokenIdx] = '\0';
     return token;
 }
 
@@ -149,5 +149,27 @@ char *copyStr(const char *str) {
     copy = (char *) malloc((strlen(str) + 1) * sizeof(char));
     strcpy(copy, str);
     return copy;
+}
+
+char *getSecondWord(const char *line, int symbolFlag) {
+    if (symbolFlag) {
+        char *secondWord;
+        int i, wordIdx;
+        i = 0, wordIdx = 0;
+        secondWord = (char *) malloc(strlen(line) * sizeof(char));
+        while (line[i] != ':' && i < strlen(line)) i++;
+        i++;
+        while (isspace(line[i]) && i < strlen(line)) i++;
+        while (!isspace(line[i]) && i < strlen(line)) {
+            secondWord[wordIdx] = line[i];
+            wordIdx++;
+            i++;
+        }
+        secondWord[wordIdx] = '\0';
+        return secondWord;
+
+    } else {
+        return getToken(line, ' ', 1);
+    }
 }
 

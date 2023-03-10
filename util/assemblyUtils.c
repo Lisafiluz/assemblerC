@@ -35,10 +35,6 @@ int isExternalOrEntryGuidance(char *str) {
 }
 
 int getNumberOfArgs(const char *command) {
-    // "xxxx    3,l1(r0,#5)"
-    // "sss r3, r4"
-    // "xxx r0"
-    // "xxx"
     int i, numberOfArgs, jumpAddressMethodFlag;
     i = 0, numberOfArgs = 0, jumpAddressMethodFlag = 0;
     while (isspace(command[i]) && i < strlen(command)) {
@@ -65,7 +61,6 @@ int getNumberOfArgs(const char *command) {
 }
 
 char *getArgument(const char *command, int argumentNumber) {
-    // mov r0,r1
     char *argument;
     int i, argIdx, jumpAddressMethodFlag;
     i = 0, argIdx = 0, jumpAddressMethodFlag = 0;
@@ -86,14 +81,18 @@ char *getArgument(const char *command, int argumentNumber) {
         if (command[i] == ',' && !jumpAddressMethodFlag) {
             if (argumentNumber == 0) {
                 argument[argIdx] = '\0';
+                argument = trim(argument);
                 return argument;
             } else argumentNumber--;
-        } else if (argumentNumber == 0 && !isspace(command[i])) {
-            argument[argIdx] = command[i];
-            argIdx++;
+        } else if (argumentNumber == 0) {
+            if (!isspace(command[i]) || argIdx > 0) {
+                argument[argIdx] = command[i];
+                argIdx++;
+            }
         }
     }
     argument[argIdx] = '\0';
+    argument = trim(argument);
     return argument;
 }
 
@@ -112,7 +111,7 @@ char *getParam(const char *argument, int paramNumber) {
                 param[paramIdx] = '\0';
                 return param;
             } else {
-                paramNumber --;
+                paramNumber--;
             }
         } else if (paramNumber == 0) {
             param[paramIdx] = argument[i];
@@ -143,7 +142,8 @@ int getArgumentAddressMethod(char *arg) {
 }
 
 char *getLineWithoutSymbol(char *line) {
-    while (!isspace(*line)) line++;
+    while (*line != ':') line++;
+    line++;
     while (isspace(*line)) line++;
     return line;
 }

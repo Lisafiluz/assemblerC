@@ -28,4 +28,6 @@ int isAlphaNumeric(const char *str);
 int isValidNumber(const char *number);
 
 char *copyStr(const char *str);
+
+char *getSecondWord(const char *line, int symbolFlag);
 #endif //ASSEMBLERC_READERUTILS_H

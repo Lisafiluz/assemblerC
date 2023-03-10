@@ -34,7 +34,9 @@ void addIcToDataSymbols(int ic, linkedList *symbolsTable);
 
 short getSymbolAddress(char *id, linkedList *symbolsTable);
 
-void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *entries, linkedList *symbolsTable, const char *fileName);
+void
+createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *entries, linkedList *symbolsTable,
+                  const char *fileName);
 
 void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow);
 
@@ -85,7 +87,9 @@ void runTransitions(char *fileName, FILE *file, const char *fileNameTemplate) {
     }
 }
 
-void createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *entries, linkedList *symbolsTable, const char *fileName) {
+void
+createOutputFiles(linkedList *instructionsList, linkedList *dataList, linkedList *entries, linkedList *symbolsTable,
+                  const char *fileName) {
     createObjectFile(instructionsList, dataList, fileName);
     createEntriesFile(entries, symbolsTable, fileName);
     createExternalsFile(instructionsList, symbolsTable, fileName);
@@ -100,15 +104,15 @@ void createExternalsFile(linkedList *instructionsList, linkedList *symbolsTable,
     i = 100;
     currNode = instructionsList->head;
     while (currNode != NULL) {
-        if (currNode->id!=NULL) {
+        if (currNode->id != NULL) {
             // this is line with symbol
-            if (((symbol*)getDataById(currNode->id, symbolsTable))->symbolType == EXTERNAL_TYPE) {
+            if (((symbol *) getDataById(currNode->id, symbolsTable))->symbolType == EXTERNAL_TYPE) {
                 if (!isExist) {
                     externalsFileName = getOutputFileName(fileName, ".ext");
                     externalsOutputFile = fopen(externalsFileName, WRITE);
                     isExist = TRUE;
                 }
-                fprintf(externalsOutputFile, "%s         %d\n", (char*)currNode->id, i);
+                fprintf(externalsOutputFile, "%s         %d\n", (char *) currNode->id, i);
             }
         }
         i++;
@@ -126,12 +130,12 @@ void createEntriesFile(linkedList *entries, linkedList *symbolsTable, const char
     if (isListNotEmpty(entries)) {
         entriesFileName = getOutputFileName(fileName, ".ent");
         entriesOutputFile = fopen(entriesFileName, WRITE);
-        node* currNode;
+        node *currNode;
         int address;
         currNode = entries->head;
         while (currNode != NULL) {
-            address = ((symbol *)getDataById(currNode->id, symbolsTable))->value;
-            fprintf(entriesOutputFile, "%s         %d\n", (char*)currNode->id, address);
+            address = ((symbol *) getDataById(currNode->id, symbolsTable))->value;
+            fprintf(entriesOutputFile, "%s         %d\n", (char *) currNode->id, address);
             currNode = currNode->next;
         }
         free(entriesFileName);
@@ -161,7 +165,7 @@ void addObjectRows(linkedList *pList, FILE *pFile, int memoryRow) {
     currNode = pList->head;
     while (currNode != NULL) {
         short word;
-        word = ((shortData *)currNode->data)->value;
+        word = ((shortData *) currNode->data)->value;
         binaryEncodedWord = getBinaryEncodedWord(word);
         fprintf(pFile, "%04d   %s\n", memoryRow, binaryEncodedWord);
         free(binaryEncodedWord);
@@ -187,70 +191,78 @@ int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dat
         pLineCopy = lineCopy;
         lineCopy = trim(lineCopy);
         if (!isCommentLine(lineCopy) && !isEmptyLine(lineCopy)) {
-            firstWord = getToken(lineCopy, ' ', 0);
-            if (isSymbol(firstWord)) {
-                firstWord[strlen(firstWord) - 1] = '\0';
-                if (validateSymbolName(firstWord, symbolsTable, fileName, rowCounter)) {
+            if (validateBasicLine(lineCopy, fileName, rowCounter)) {
+                firstWord = getToken(lineCopy, ':', 0);
+                if (strlen(firstWord) < strlen(lineCopy)) {
                     symbolFlag = 1;
-                } else {
-                    isValid = FALSE;
-                }
-            }
-            secondWord = getToken(lineCopy, ' ', 1);
-            if (isDataGuidance(firstWord) || isDataGuidance(secondWord)) {
-                if (validateDataGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
-                    if (symbolFlag) {
-                        node *n;
-                        symbol *s;
-                        char* symbolName;
-                        symbolName = copyStr(firstWord);
-                        s = createSymbol(symbolName, DATA_TYPE, dc);
-                        n = createNewNode(symbolName, s);
-                        add(n, symbolsTable);
+                    if (!validateSymbolName(firstWord, symbolsTable, fileName, rowCounter)) {
+                        isValid = FALSE;
                     }
-                    dc += saveGuidanceLine(lineCopy, symbolFlag, dataList, dc);
-                } else {
-                    isValid = FALSE;
                 }
-            } else if (isExternalOrEntryGuidance(firstWord) || isExternalOrEntryGuidance(secondWord)) {
-                if (isExternalOrEntryGuidance(secondWord)) {
-                    printWarning(REDUNDANT_SYMBOL, lineCopy, fileName, rowCounter);
+                if (!symbolFlag) {
+                    free(firstWord);
+                    firstWord = getToken(lineCopy, ' ', 0);
                 }
-                if (isExternalGuidance(firstWord) || isExternalGuidance(secondWord)) {
-                    if (validateExternalGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
-                        char *externalSymbolName;
-                        node *n;
-                        symbol *s;
-                        externalSymbolName = getToken(lineCopy, ' ', symbolFlag + 1);
-                        s = createSymbol(externalSymbolName, EXTERNAL_TYPE, 0);
-                        n = createNewNode(externalSymbolName, s);
-                        add(n, symbolsTable);
-                        //dc += saveGuidanceLine(lineCopy, dataArray);
-                        //check for potential duplicates external vs entry?
+                secondWord = getSecondWord(lineCopy, symbolFlag);
+                if (isDataGuidance(firstWord) || isDataGuidance(secondWord)) {
+                    if (validateDataGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
+                        if (symbolFlag) {
+                            node *n;
+                            symbol *s;
+                            char *symbolName;
+                            symbolName = copyStr(firstWord);
+                            s = createSymbol(symbolName, DATA_TYPE, dc);
+                            n = createNewNode(symbolName, s);
+                            add(n, symbolsTable);
+                        }
+                        dc += saveGuidanceLine(lineCopy, symbolFlag, dataList, dc);
                     } else {
                         isValid = FALSE;
                     }
+                } else if (isExternalOrEntryGuidance(firstWord) || isExternalOrEntryGuidance(secondWord)) {
+                    if (isExternalOrEntryGuidance(secondWord)) {
+                        printWarning(REDUNDANT_SYMBOL, lineCopy, fileName, rowCounter);
+                    }
+                    if (isExternalGuidance(firstWord) || isExternalGuidance(secondWord)) {
+                        if (validateExternalEntryGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
+                            char *externalSymbolName;
+                            node *n;
+                            symbol *s;
+                            externalSymbolName = getToken(lineCopy, ' ', symbolFlag + 1);
+                            s = createSymbol(externalSymbolName, EXTERNAL_TYPE, 0);
+                            n = createNewNode(externalSymbolName, s);
+                            add(n, symbolsTable);
+                        } else {
+                            isValid = FALSE;
+                        }
+                    } else {
+                        // entry
+                        if (validateExternalEntryGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
+                            add(createNewNode(getToken(lineCopy, ' ', symbolFlag + 1), NULL), entries);
+                        } else {
+                            isValid = FALSE;
+                        }
+                    }
+                } else if (validateCodeLine(lineCopy, symbolFlag, operationsTable, fileName, rowCounter)) {
+                    if (symbolFlag) {
+                        node *n;
+                        symbol *s;
+                        char *symbolName;
+                        symbolName = copyStr(firstWord);
+                        s = createSymbol(symbolName, CODE_TYPE, ic);
+                        n = createNewNode(symbolName, s);
+                        add(n, symbolsTable);
+                    }
+                    ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList, ic);
                 } else {
-                    //entry
-                    add(createNewNode(getToken(lineCopy, ' ', symbolFlag + 1), NULL), entries);
+                    isValid = FALSE;
                 }
-            } else if (validateCodeLine(lineCopy, symbolFlag, operationsTable, fileName, rowCounter)) {
-                if (symbolFlag) {
-                    node *n;
-                    symbol *s;
-                    char* symbolName;
-                    symbolName = copyStr(firstWord);
-                    s = createSymbol(symbolName, CODE_TYPE, ic);
-                    n = createNewNode(symbolName, s);
-                    add(n, symbolsTable);
-                }
-                ic += saveCodeLine(lineCopy, symbolFlag, operationsTable, instructionsList, ic);
+
+                free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
+                free(secondWord);//todo: need to understand why doesn't work with this line
             } else {
                 isValid = FALSE;
             }
-
-            free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
-            free(secondWord);//todo: need to understand why doesn't work with this line
         }
         rowCounter++;
         symbolFlag = 0;

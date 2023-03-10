@@ -72,31 +72,36 @@ int openMacros(FILE *file, FILE *outputFile) {
         lineCopy = copyStr(line);
         pLineCopy = lineCopy;
         lineCopy = trim(lineCopy);
-        firstToken = getToken(lineCopy, ' ', 0);
-        if (isEqual(firstToken, END_MACRO)) {
-            macroFlag = 0;
-            macro = createNewNode(macroName, macroData);
-            add(macro, macrosList);
-        } else if (macroFlag) {
-            row = createNewNode(macroDataRowCounter, lineCopy);
-            add(row, macroData);
-            macroDataRowCounter++;
-        } else if (isEqual(firstToken, MACRO)) {
-            macroData = createNewLinkedList();
-            macroFlag = 1;
-            macroDataRowCounter = (void *) 1;
-            macroName = getMacroName(lineCopy);
-            if (!validateMacroName(macroName)) {
-                isValid = FALSE;
+        if (!isEmptyLine(lineCopy) && !isCommentLine(lineCopy)) {
+            firstToken = getToken(lineCopy, ' ', 0);
+            if (isEqual(firstToken, END_MACRO)) {
+                macroFlag = 0;
+                macro = createNewNode(macroName, macroData);
+                add(macro, macrosList);
+            } else if (macroFlag) {
+                row = createNewNode(macroDataRowCounter, lineCopy);
+                add(row, macroData);
+                macroDataRowCounter++;
+            } else if (isEqual(firstToken, MACRO)) {
+                macroData = createNewLinkedList();
+                macroFlag = 1;
+                macroDataRowCounter = (void *) 1;
+                macroName = getMacroName(lineCopy);
+                if (!validateMacroName(macroName)) {
+                    isValid = FALSE;
+                }
+            } else if (isIdExist(firstToken, macrosList)) {
+                linkedList *macroDataToAdd = getDataById(firstToken, macrosList);
+                writeMacroDataToFile(macroDataToAdd, outputFile);
+            } else {
+                fprintf(outputFile, "%s\n", lineCopy);
+                free(pLineCopy);
             }
-        } else if (isIdExist(firstToken, macrosList)) {
-            linkedList *macroDataToAdd = getDataById(firstToken, macrosList);
-            writeMacroDataToFile(macroDataToAdd, outputFile);
+            free(firstToken);
         } else {
             fprintf(outputFile, "%s\n", lineCopy);
             free(pLineCopy);
         }
-        free(firstToken);
     }
     if (line) {
         free(line);

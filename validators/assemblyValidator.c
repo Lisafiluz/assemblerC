@@ -11,13 +11,14 @@
 #include "../io/messagesHandler.h"
 #include "../util/assemblyUtils.h"
 
+#define LINE_MAX_LEN 80
 #define SYMBOL_MAX_LEN 30
 #define SYMBOL_MIN_LEN 1
 #define TRUE 1
 #define FALSE 0
 #define OPERATIONS_SIZE 16
 
-int getNextTokenIndex(const char *str, int fromIdx);
+int getNextTokenIndex(const char *str, int fromIdx, char delim);
 
 int isData(const char *line, int i);
 
@@ -33,11 +34,21 @@ int validateSourceArgAddressMethod(int addressMethod, int operationNumber);
 
 int validateTargetArgAddressMethod(int addressMethod, int operationNumber);
 
-int validateMacroName(const char* macroName) {
+int validateMacroName(const char *macroName) {
     int isValid;
     isValid = TRUE;
     if (isValidRegister(macroName)) {
         printError(INVALID_MACRO_NAME, macroName, NULL, -1);
+        isValid = FALSE;
+    }
+    return isValid;
+}
+
+int validateBasicLine(const char *line, const char *fileName, int rowCounter) {
+    int isValid;
+    isValid = TRUE;
+    if (strlen(line) > LINE_MAX_LEN) {
+        printError(LINE_EXCEED_MAX_LEN, line, fileName, rowCounter);
         isValid = FALSE;
     }
     return isValid;
@@ -73,14 +84,14 @@ int validateDataGuidanceLine(char *line, const int symbolFlag, char *fileName, i
     lineCopy = copyStr(line);
     startPtr = lineCopy;
     if (symbolFlag) {
-        index = getNextTokenIndex(lineCopy, index);
+        index = getNextTokenIndex(lineCopy, index, ':');
     }
     if (isData(lineCopy, index)) {
-        index = getNextTokenIndex(lineCopy, index);
+        index = getNextTokenIndex(lineCopy, index, ' ');
         isValid = validateDotDataRow(&lineCopy[index], fileName, rowCounter);
 
     } else {
-        index = getNextTokenIndex(lineCopy, index);
+        index = getNextTokenIndex(lineCopy, index, ' ');
         isValid = validateDotStringRow(startPtr, &lineCopy[index], fileName, rowCounter);
     }
     free(lineCopy);
@@ -108,9 +119,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     isValid = TRUE;
     number = (char *) malloc((size + 1) * sizeof(char));
     for (i = 0; i < size; i++) {
-        if (isspace(arguments[i])) {
-            i++;
-        } else {
+        if (!isspace(arguments[i])) {
             if (arguments[i] == ',') {
                 if (strlen(number) == 0) {
                     isValid = FALSE;
@@ -123,6 +132,11 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
                 numberCounter = 0;
                 number = (char *) malloc((size - i + 1) * sizeof(char));
             } else {
+                number[numberCounter] = arguments[i];
+                numberCounter++;
+            }
+        } else {
+            if (number != NULL && strlen(number) > 0) {
                 number[numberCounter] = arguments[i];
                 numberCounter++;
             }
@@ -139,21 +153,25 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     return isValid;
 }
 
-int validateExternalGuidanceLine(const char *line, int symbolFlag, char *fileName, int rowCounter) {
+int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, char *fileName, int rowCounter) {
     // the symbol should not be existed in the whole file
-    int isValid, index;
+    int isValid, index, prevIndex;
     char *lineCopy;
     isValid = TRUE;
     index = 0;
     lineCopy = copyStr(line);
     if (symbolFlag) {
-        index = getNextTokenIndex(lineCopy, index);
+        index = getNextTokenIndex(lineCopy, index, ':');
     }
-    index = getNextTokenIndex(lineCopy, index);  // index of argument
-    index = getNextTokenIndex(lineCopy, index);
+    index = getNextTokenIndex(lineCopy, index, ' ');
+    prevIndex = index;
+    index = getNextTokenIndex(lineCopy, index, ' ');
     if (index != strlen(lineCopy)) {
         isValid = FALSE;
         printError(TOO_MUCH_ARGUMENTS, lineCopy, fileName, rowCounter);
+    } else if (prevIndex == index) {
+        isValid = FALSE;
+        printError(NO_ARGUMENTS, lineCopy, fileName, rowCounter);
     }
     free(lineCopy);
     return isValid;
@@ -296,10 +314,15 @@ int isData(const char *line, int i) {
            line[i + 4] == data[4];
 }
 
-int getNextTokenIndex(const char *str, int fromIdx) {
+int getNextTokenIndex(const char *str, int fromIdx, char delim) {
     int i;
     i = fromIdx;
-    while (!isspace(str[i]) && i < strlen(str)) i++;
+    if (isspace(delim)) {
+        while (!isspace(str[i]) && i < strlen(str)) i++;
+    } else {
+        while (str[i] != delim && i < strlen(str)) i++;
+        i++;
+    }
     while (isspace(str[i]) && i < strlen(str)) i++;
     return i;
 }
