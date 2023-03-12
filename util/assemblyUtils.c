@@ -11,7 +11,6 @@
 #define ENTRY ".entry"
 #define FALSE 0
 #define TRUE 1
-//#define INVALID_ARGUMENT '-1'
 
 
 int isDataGuidance(char *str) {
@@ -139,6 +138,3 @@ char *getLineWithoutSymbol(char *line) {
     while (isspace(*line)) line++;
     return line;
 }
-
-
-

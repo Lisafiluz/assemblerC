@@ -156,7 +156,6 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
 }
 
 int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, char *fileName, int rowCounter) {
-    // the symbol should not be existed in the whole file
     int isValid, index, prevIndex;
     char *lineCopy;
     isValid = TRUE;
@@ -260,7 +259,6 @@ int validateTargetArgAddressMethod(int addressMethod, int operationNumber) {
         case 12:
             return addressMethod >= 0 && addressMethod <= 3;
         default:
-            // also for 14, 15
             return FALSE;
     }
 }
@@ -275,7 +273,6 @@ int validateSourceArgAddressMethod(int addressMethod, int operationNumber) {
         case 6:
             return addressMethod == 1 || addressMethod == 2;
         default:
-            // also for all other operations
             return FALSE;
     }
 }

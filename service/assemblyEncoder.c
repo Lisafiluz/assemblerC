@@ -73,7 +73,6 @@ int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc) {
 }
 
 size_t saveData(char *line, linkedList *dataList, int dc) {
-    // .data -52, 53, +49
     int startDc, i, numberCounter;
     char *number;
     size_t size;
@@ -105,7 +104,6 @@ size_t saveData(char *line, linkedList *dataList, int dc) {
 }
 
 size_t saveString(char *line, linkedList *dataList, int dc) {
-    //.string "abcdef"
     char *string;
     int i, startCopy, stringIdx;
     startCopy = 0, stringIdx = 0;
@@ -120,14 +118,11 @@ size_t saveString(char *line, linkedList *dataList, int dc) {
         }
     }
     string[stringIdx] = '\0';
-    //*dataList = realloc(*dataList, dc + strlen(string) + 1);
 
     for (i = 0; i < strlen(string); i++) {
         add(createNewNode(NULL, createShortData(string[i])), dataList);
-        //(*dataList)[dc] = (short) string[i];
         dc++;
     }
-    //(*dataList)[dc] = 0;
     add(createNewNode(NULL, createShortData(0)), dataList);
     return strlen(string) + 1;
 }
@@ -228,7 +223,6 @@ void addArgumentWord(const char *arg, int argMethodAddress, linkedList *instruct
             add(createNewNode(copyStr(arg), NULL), instructionsList);
             break;
         case REGISTER_ADDRESSING:
-            //potential bug with the A,R,E
             add(createNewNode(NULL, createShortData(addSourceRegisterToWord(getRegisterNumber(arg)))),
                 instructionsList);
             break;
