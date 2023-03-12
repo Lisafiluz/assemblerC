@@ -10,6 +10,7 @@
 #include "../util/readerUtils.h"
 #include "../io/messagesHandler.h"
 #include "../util/assemblyUtils.h"
+#include "../structs/symbol.h"
 
 #define LINE_MAX_LEN 80
 #define SYMBOL_MAX_LEN 30
@@ -155,9 +156,10 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     return isValid;
 }
 
-int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, char *fileName, int rowCounter) {
+int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, linkedList *symbolsTable, char *fileName,
+                                      int rowCounter) {
     int isValid, index, prevIndex;
-    char *lineCopy;
+    char *lineCopy, *name;
     isValid = TRUE;
     index = 0;
     lineCopy = copyStr(line);
@@ -173,6 +175,15 @@ int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, char *fi
     } else if (prevIndex == index) {
         isValid = FALSE;
         printError(NO_ARGUMENTS, lineCopy, fileName, rowCounter);
+    }
+    name = getToken(lineCopy, ' ', symbolFlag + 1);
+    if (isIdExist(name, symbolsTable)) {
+        symbol *s;
+        s = (symbol *) getDataById(name, symbolsTable);
+        if (s->symbolType == EXTERNAL_TYPE || s->symbolType == ENTRY_TYPE) {
+            isValid = FALSE;
+            printError(DUPLICATE_SYMBOL_NAME, lineCopy, fileName, rowCounter);
+        }
     }
     free(lineCopy);
     return isValid;

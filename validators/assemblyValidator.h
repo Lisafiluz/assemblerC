@@ -16,7 +16,8 @@ int validateSymbolName(char *symbol, linkedList *symbolsTable, char *fileName, i
 
 int validateDataGuidanceLine(char *line, int symbolFlag, char *fileName, int rowCounter);
 
-int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, char *fileName, int rowCounter);
+int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, linkedList *symbolsTable, char *fileName,
+                                      int rowCounter);
 
 int validateCodeLine(char *line, int symbolFlag, const char **operationsTable, char *fileName, int rowCounter);
 
