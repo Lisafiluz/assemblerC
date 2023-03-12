@@ -1,6 +1,6 @@
-//
-// Created by Iluz, Lisaf(AWF) on 03/02/2023.
-//
+/*
+ Created by Iluz, Lisaf(AWF) on 21/02/2023.
+*/
 
 #include <string.h>
 #include <ctype.h>
@@ -121,6 +121,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     for (i = 0; i < size; i++) {
         if (!isspace(arguments[i])) {
             if (arguments[i] == ',') {
+                number[numberCounter] = '\0';
                 if (strlen(number) == 0) {
                     isValid = FALSE;
                     printError(EMPTY_NUMBER, number, fileName, rowCounter);
@@ -142,6 +143,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
             }
         }
     }
+    number[numberCounter] = '\0';
     if (strlen(number) == 0) {
         isValid = FALSE;
         printError(EMPTY_NUMBER, number, fileName, rowCounter);

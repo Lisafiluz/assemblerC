@@ -1,7 +1,3 @@
-//
-// Created by Iluz, Lisaf(AWF) on 24/02/2023.
-//
-
 #ifndef ASSEMBLERC_ENUMS_H
 #define ASSEMBLERC_ENUMS_H
 enum symbolTypes {
@@ -39,4 +35,4 @@ char *getFullErrorMessage(enum errorMessages errorType);
 
 char *getFullWarningMessage(enum warningMessages warningType);
 
-#endif //ASSEMBLERC_ENUMS_H
+#endif

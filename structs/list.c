@@ -1,6 +1,6 @@
-//
-// Created by Iluz, Lisaf(AWF) on 03/02/2023.
-//
+/*
+ Created by Iluz, Lisaf(AWF) on 21/02/2023.
+*/
 #include <stdlib.h>
 #include "list.h"
 #include "string.h"

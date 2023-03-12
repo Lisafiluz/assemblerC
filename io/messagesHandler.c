@@ -1,8 +1,4 @@
-//
-// Created by Iluz, Lisaf(AWF) on 24/02/2023.
-//
-
-#include <printf.h>
+#include <stdio.h>
 #include "messagesHandler.h"
 
 void printError(enum errorMessages errorType, const char *data, const char *fileName, int rowCounter) {

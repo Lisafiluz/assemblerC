@@ -1,7 +1,3 @@
-//
-// Created by Iluz, Lisaf(AWF) on 24/02/2023.
-//
-
 #ifndef ASSEMBLERC_ASSEMBLYUTILS_H
 #define ASSEMBLERC_ASSEMBLYUTILS_H
 
@@ -21,4 +17,4 @@ int getArgumentAddressMethod(char *arg);
 
 char *getLineWithoutSymbol(char *line);
 
-#endif //ASSEMBLERC_ASSEMBLYUTILS_H
+#endif

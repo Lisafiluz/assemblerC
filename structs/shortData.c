@@ -1,7 +1,3 @@
-//
-// Created by Iluz, Lisaf(AWF) on 07/03/2023.
-//
-
 #include <stdlib.h>
 #include "shortData.h"
 

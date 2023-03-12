@@ -1,6 +1,7 @@
-//
-// Created by Iluz, Lisaf(AWF) on 03/02/2023.
-//
+/*
+ Created by Iluz, Lisaf(AWF) on 03/02/2023.
+*/
+
 
 #ifndef ASSEMBLERC_READERUTILS_H
 #define ASSEMBLERC_READERUTILS_H
@@ -30,4 +31,4 @@ int isValidNumber(const char *number);
 char *copyStr(const char *str);
 
 char *getSecondWord(const char *line, int symbolFlag);
-#endif //ASSEMBLERC_READERUTILS_H
+#endif

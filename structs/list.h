@@ -1,6 +1,8 @@
-//
-// Created by Iluz, Lisaf(AWF) on 03/02/2023.
-//
+/*
+
+ Created by Iluz, Lisaf(AWF) on 03/02/2023.
+*/
+
 
 #ifndef ASSEMBLERC_LIST_H
 #define ASSEMBLERC_LIST_H
@@ -34,4 +36,4 @@ void freeLinkedList(linkedList *list);
 
 int getLength(const linkedList *list);
 
-#endif //ASSEMBLERC_LIST_H
+#endif

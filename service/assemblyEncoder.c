@@ -1,7 +1,3 @@
-//
-// Created by Iluz, Lisaf(AWF) on 24/02/2023.
-//
-
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -91,9 +87,7 @@ size_t saveData(char *line, linkedList *dataList, int dc) {
     for (i = 0; i < size; i++) {
         if (!isspace(line[i])) {
             if (line[i] == ',') {
-                //(*dataList) = realloc((*dataList), (dc + 1) * sizeof(short));
                 add(createNewNode(NULL, createShortData((short) atoi(number))), dataList);
-                //(*dataList)[dc] = atoi(number);  // todo: verify 14 bits saving including negative numbers
                 dc++;
                 free(number);
                 numberCounter = 0;
@@ -104,8 +98,6 @@ size_t saveData(char *line, linkedList *dataList, int dc) {
             }
         }
     }
-    //(*dataList) = realloc((*dataList), (dc + 1) * sizeof(short));
-    //(*dataList)[dc] = atoi(number);
     add(createNewNode(NULL, createShortData((short) atoi(number))), dataList);
     dc++;
     free(number);

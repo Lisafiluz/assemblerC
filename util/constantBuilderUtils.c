@@ -1,7 +1,3 @@
-//
-// Created by Iluz, Lisaf(AWF) on 24/02/2023.
-//
-
 #include <stdlib.h>
 #include "constantBuilderUtils.h"
 

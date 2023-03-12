@@ -1,6 +1,7 @@
-//
-// Created by Iluz, Lisaf(AWF) on 03/02/2023.
-//
+/*
+ Created by Iluz, Lisaf(AWF) on 03/02/2023.
+*/
+
 
 #ifndef ASSEMBLERC_ASSEMBLYVALIDATOR_H
 #define ASSEMBLERC_ASSEMBLYVALIDATOR_H
@@ -27,4 +28,4 @@ int isValidSymbol(const char *argument);
 
 int isValidJumpAddressArgMethod(char *argument);
 
-#endif //ASSEMBLERC_ASSEMBLYVALIDATOR_H
+#endif
