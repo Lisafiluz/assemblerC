@@ -219,7 +219,7 @@ int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dat
                         printWarning(REDUNDANT_SYMBOL, lineCopy, fileName, rowCounter);
                     }
                     if (isExternalGuidance(firstWord) || isExternalGuidance(secondWord)) {
-                        if (validateExternalEntryGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
+                        if (validateExternalEntryGuidanceLine(lineCopy, symbolFlag, symbolsTable, fileName, rowCounter)) {
                             char *externalSymbolName;
                             node *n;
                             symbol *s;
@@ -232,7 +232,7 @@ int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dat
                         }
                     } else {
                         // entry
-                        if (validateExternalEntryGuidanceLine(lineCopy, symbolFlag, fileName, rowCounter)) {
+                        if (validateExternalEntryGuidanceLine(lineCopy, symbolFlag, symbolsTable, fileName, rowCounter)) {
                             add(createNewNode(getToken(lineCopy, ' ', symbolFlag + 1), NULL), entries);
                         } else {
                             isValid = FALSE;
