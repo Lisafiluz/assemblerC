@@ -66,6 +66,7 @@ int openMacros(FILE *file, FILE *outputFile) {
 
     isValid = TRUE;
     macrosList = createNewLinkedList();
+    macroDataRowCounter = NULL;
     line = NULL;
     size_t len = 0;
     macroFlag = 0;
@@ -82,11 +83,9 @@ int openMacros(FILE *file, FILE *outputFile) {
             } else if (macroFlag) {
                 row = createNewNode(macroDataRowCounter, lineCopy);
                 add(row, macroData);
-                macroDataRowCounter++;
             } else if (isEqual(firstToken, MACRO)) {
                 macroData = createNewLinkedList();
                 macroFlag = 1;
-                macroDataRowCounter = (void *) 1;
                 macroName = getMacroName(lineCopy);
                 if (!validateMacroName(macroName)) {
                     isValid = FALSE;
