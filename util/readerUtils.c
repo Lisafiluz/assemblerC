@@ -20,7 +20,6 @@ char *rtrim(char *str) {
     char *lastChar;
     lastChar = str + strlen(str) - 1;
     while (isspace(*lastChar)) {
-        //todo: check empty line
         lastChar--;
     }
     *(++lastChar) = '\0';
@@ -28,7 +27,6 @@ char *rtrim(char *str) {
 }
 
 char *ltrim(char *str) {
-    //todo: check empty line
     while (isspace(*str)) str++;
     return str;
 }
@@ -88,7 +86,7 @@ int isEmptyLine(char *line) {
     size_t length;
     length = strlen(line);
     while (isspace(*line)) {
-        line++;  //todo: generous
+        line++;
         length--;
     }
     return length == 0;

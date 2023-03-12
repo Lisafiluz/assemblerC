@@ -62,7 +62,7 @@ void assembler(int argc, char **argv) {
 
 void runTransitions(char *fileName, FILE *file, const char *fileNameTemplate) {
     int isFileValid;
-    linkedList *instructionsList, *dataList, *symbolsTable, *entries;  // id is row number data is the error , id is symbol name data is memory address
+    linkedList *instructionsList, *dataList, *symbolsTable, *entries;
 
     isFileValid = TRUE;
     symbolsTable = createNewLinkedList();
@@ -101,7 +101,6 @@ void createExternalsFile(linkedList *instructionsList, linkedList *symbolsTable,
     currNode = instructionsList->head;
     while (currNode != NULL) {
         if (currNode->id != NULL) {
-            // this is line with symbol
             if (((symbol *) getDataById(currNode->id, symbolsTable))->symbolType == EXTERNAL_TYPE) {
                 if (!isExist) {
                     externalsFileName = getOutputFileName(fileName, ".ext");
@@ -254,15 +253,14 @@ int runFirstTransition(FILE *file, linkedList *instructionsList, linkedList *dat
                     isValid = FALSE;
                 }
 
-                free(firstWord); //todo: need to understand why doesn't work with this line. maybe because we use it!!
-                free(secondWord);//todo: need to understand why doesn't work with this line
+                free(firstWord);
+                free(secondWord);
             } else {
                 isValid = FALSE;
             }
         }
         rowCounter++;
         symbolFlag = 0;
-        ////free
         free(pLineCopy);
     }
     addIcToDataSymbols(ic, symbolsTable);
