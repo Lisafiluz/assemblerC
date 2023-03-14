@@ -35,7 +35,7 @@ int validateSourceArgAddressMethod(int addressMethod, int operationNumber);
 
 int validateTargetArgAddressMethod(int addressMethod, int operationNumber);
 
-int isString(char *line, int i);
+int isString(const char *line, int i);
 
 int validateMacroName(const char *macroName) {
     int isValid;
@@ -118,12 +118,13 @@ int validateDotStringRow(char *lineCopy, const char *argument, char *fileName, i
 
 int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     int isValid, i, numberCounter;
-    char *number;
+    char *number, *pNumber;
     size_t size;
     size = strlen(arguments);
     numberCounter = 0;
     isValid = TRUE;
     number = (char *) malloc((size + 1) * sizeof(char));
+    pNumber = number;
     for (i = 0; i < size; i++) {
         if (!isspace(arguments[i])) {
             if (arguments[i] == ',') {
@@ -136,9 +137,10 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
                     isValid = FALSE;
                     printError(NOT_A_VALID_NUMBER, number, fileName, rowCounter);
                 }
-                free(number);
+                free(pNumber);
                 numberCounter = 0;
                 number = (char *) malloc((size - i + 1) * sizeof(char));
+                pNumber = number;
             } else {
                 number[numberCounter] = arguments[i];
                 numberCounter++;
@@ -159,7 +161,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
         isValid = FALSE;
         printError(NOT_A_VALID_NUMBER, number, fileName, rowCounter);
     }
-    free(number);
+    free(pNumber);
     return isValid;
 }
 
@@ -331,7 +333,7 @@ int isData(const char *line, int i) {
            line[i + 4] == data[4];
 }
 
-int isString(char *line, int i) {
+int isString(const char *line, int i) {
     char *data;
     data = ".string";
     return line[i] == data[0] &&

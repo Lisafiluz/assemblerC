@@ -1,1 +1,1 @@
-jmp K1(r1, r3)
+thisIsAveryVeryVeryVeryVeryLongLabel: .data 12, 4, 56, 78, 10
