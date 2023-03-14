@@ -6,34 +6,41 @@
 
 #ifndef ASSEMBLERC_LIST_H
 #define ASSEMBLERC_LIST_H
-typedef struct node {
-    void *id;
-    void *data;
-    struct node *next;
-} node;
-typedef struct linkedList {
-    struct node *head;
-    struct node *tail;
-} linkedList;
 
-void initLinkedList(linkedList *list);
+typedef struct node *node;
 
-void initNode(node *node);
+typedef struct linkedList *linkedList;
 
-void *getDataById(void *id, linkedList *list);
+void initLinkedList(linkedList list);
 
-void add(node *nodeToAdd, linkedList *list);
+void initNode(node node);
 
-linkedList *createNewLinkedList();
+void *getDataById(void *id, linkedList list);
 
-node *createNewNode(void *id, void *data);
+void add(node nodeToAdd, linkedList list);
 
-int isIdExist(char *id, linkedList *list);
+linkedList createNewLinkedList();
 
-int isListNotEmpty(linkedList *list);
+node createNewNode(void *id, void *data);
 
-void freeLinkedList(linkedList *list);
+int isIdExist(char *id, linkedList list);
 
-int getLength(const linkedList *list);
+int isListNotEmpty(linkedList list);
+
+void freeLinkedList(linkedList list);
+
+int getLength(linkedList list);
+
+node getHead(linkedList list);
+
+node getTail(linkedList list);
+
+void *getId(node node);
+
+void *getData(node node);
+
+node getNextNode(node node);
+
+void setData(node node, void *data);
 
 #endif
