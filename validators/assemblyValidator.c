@@ -55,7 +55,7 @@ int validateBasicLine(const char *line, const char *fileName, int rowCounter) {
     return isValid;
 }
 
-int validateSymbolName(char *symbol, linkedList *symbolsTable, char *fileName, int rowCounter) {
+int validateSymbolName(char *symbol, linkedList symbolsTable, char *fileName, int rowCounter) {
     int isValid;
     isValid = TRUE;
     if (strlen(symbol) > SYMBOL_MAX_LEN) {
@@ -156,7 +156,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
     return isValid;
 }
 
-int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, linkedList *symbolsTable, char *fileName,
+int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, linkedList symbolsTable, char *fileName,
                                       int rowCounter) {
     int isValid, index, prevIndex;
     char *lineCopy, *name;
@@ -178,9 +178,9 @@ int validateExternalEntryGuidanceLine(const char *line, int symbolFlag, linkedLi
     }
     name = getToken(lineCopy, ' ', symbolFlag + 1);
     if (isIdExist(name, symbolsTable)) {
-        symbol *s;
-        s = (symbol *) getDataById(name, symbolsTable);
-        if (s->symbolType == EXTERNAL_TYPE || s->symbolType == ENTRY_TYPE) {
+        symbol s;
+        s = (symbol) getDataById(name, symbolsTable);
+        if (getSymbolType(s) == EXTERNAL_TYPE || getSymbolType(s) == ENTRY_TYPE) {
             isValid = FALSE;
             printError(DUPLICATE_SYMBOL_NAME, lineCopy, fileName, rowCounter);
         }

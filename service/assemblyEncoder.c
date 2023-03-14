@@ -14,11 +14,11 @@
 #define JUMP_ADDRESSING 2
 #define REGISTER_ADDRESSING 3
 
-size_t saveString(char *line, linkedList *dataList, int dc);
+size_t saveString(char *line, linkedList dataList, int dc);
 
-size_t saveData(char *line, linkedList *dataList, int dc);
+size_t saveData(char *line, linkedList dataList, int dc);
 
-int saveCode(char *command, int operationNumber, linkedList *instructionsList);
+int saveCode(char *command, int operationNumber, linkedList instructionsList);
 
 short addOperationCode(short operationNumber);
 
@@ -32,7 +32,7 @@ int calculateWordsToAddInJumpArg(const char *jumpCommand);
 
 short addSourceAndTargetParams(const char *jumpCommand);
 
-void addAdditionalWords(char *sourceArg, char *targetArg, linkedList *instructionsList);
+void addAdditionalWords(char *sourceArg, char *targetArg, linkedList instructionsList);
 
 int getRegisterNumber(const char *registerName);
 
@@ -42,17 +42,17 @@ short addTargetRegisterToWord(int num);
 
 short getImmediateNumber(const char *arg);
 
-void addAdditionalWordsForJumpAddressing(const char *arg, linkedList *instructionsList);
+void addAdditionalWordsForJumpAddressing(const char *arg, linkedList instructionsList);
 
-void addParamWord(const char *param, int paramAddressMethod, linkedList *instructionsList);
+void addParamWord(const char *param, int paramAddressMethod, linkedList instructionsList);
 
-void addRegistersWord(const char *reg1, const char *reg2, linkedList *instructionsList);
+void addRegistersWord(const char *reg1, const char *reg2, linkedList instructionsList);
 
-void addArgumentWord(const char *arg, int argMethodAddress, linkedList *instructionsList);
+void addArgumentWord(const char *arg, int argMethodAddress, linkedList instructionsList);
 
 void *getSymbolNameFromJumpArgument(const char *arg);
 
-int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc) {
+int saveGuidanceLine(char *line, int symbolFlag, linkedList dataList, int dc) {
     size_t L;
     char *lineCopy, *pLine, *guidanceCommand;
     lineCopy = copyStr(line);
@@ -72,7 +72,7 @@ int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc) {
     return (int) L;
 }
 
-size_t saveData(char *line, linkedList *dataList, int dc) {
+size_t saveData(char *line, linkedList dataList, int dc) {
     int startDc, i, numberCounter;
     char *number;
     size_t size;
@@ -103,7 +103,7 @@ size_t saveData(char *line, linkedList *dataList, int dc) {
     return dc - startDc;
 }
 
-size_t saveString(char *line, linkedList *dataList, int dc) {
+size_t saveString(char *line, linkedList dataList, int dc) {
     char *string;
     int i, startCopy, stringIdx;
     startCopy = 0, stringIdx = 0;
@@ -127,7 +127,7 @@ size_t saveString(char *line, linkedList *dataList, int dc) {
     return strlen(string) + 1;
 }
 
-int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList *instructionsList) {
+int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList instructionsList) {
     char *lineCopy, *pCopy, *operationName;
     int i, isFound, L;
     isFound = FALSE;
@@ -149,7 +149,7 @@ int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linke
     return L;
 }
 
-int saveCode(char *command, int operationNumber, linkedList *instructionsList) {
+int saveCode(char *command, int operationNumber, linkedList instructionsList) {
     int numberOfArgs, L;
     short binaryCommand;
     char *sourceArg, *targetArg;
@@ -194,7 +194,7 @@ int saveCode(char *command, int operationNumber, linkedList *instructionsList) {
     return L;
 }
 
-void addAdditionalWords(char *sourceArg, char *targetArg, linkedList *instructionsList) {
+void addAdditionalWords(char *sourceArg, char *targetArg, linkedList instructionsList) {
     int sourceArgAddressMethod, targetArgAddressMethod;
     sourceArgAddressMethod = -1;
     if (sourceArg != NULL) {
@@ -211,7 +211,7 @@ void addAdditionalWords(char *sourceArg, char *targetArg, linkedList *instructio
     }
 }
 
-void addArgumentWord(const char *arg, int argMethodAddress, linkedList *instructionsList) {
+void addArgumentWord(const char *arg, int argMethodAddress, linkedList instructionsList) {
     switch (argMethodAddress) {
         case JUMP_ADDRESSING:
             addAdditionalWordsForJumpAddressing(arg, instructionsList);
@@ -231,7 +231,7 @@ void addArgumentWord(const char *arg, int argMethodAddress, linkedList *instruct
     }
 }
 
-void addRegistersWord(const char *reg1, const char *reg2, linkedList *instructionsList) {
+void addRegistersWord(const char *reg1, const char *reg2, linkedList instructionsList) {
     int num1, num2;
     short word;
     word = 0;
@@ -242,7 +242,7 @@ void addRegistersWord(const char *reg1, const char *reg2, linkedList *instructio
     add(createNewNode(NULL, createShortData(word)), instructionsList);
 }
 
-void addAdditionalWordsForJumpAddressing(const char *arg, linkedList *instructionsList) {
+void addAdditionalWordsForJumpAddressing(const char *arg, linkedList instructionsList) {
     char *param1, *param2;
     int param1AddressMethod, param2AddressMethod;
     add(createNewNode(getSymbolNameFromJumpArgument(arg), NULL), instructionsList);
@@ -277,7 +277,7 @@ void *getSymbolNameFromJumpArgument(const char *arg) {
     return symbolName;
 }
 
-void addParamWord(const char *param, int paramAddressMethod, linkedList *instructionsList) {
+void addParamWord(const char *param, int paramAddressMethod, linkedList instructionsList) {
     switch (paramAddressMethod) {
         case IMMEDIATE_ADDRESSING:
             add(createNewNode(NULL, createShortData(getImmediateNumber(param))), instructionsList);

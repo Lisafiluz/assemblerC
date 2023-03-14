@@ -1,9 +1,10 @@
 #ifndef ASSEMBLERC_SHORTDATA_H
 #define ASSEMBLERC_SHORTDATA_H
 
-typedef struct shortData {
-    short value;
-} shortData;
+typedef struct shortDataPtr *shortDataPtr;
 
-shortData *createShortData(short value);
+shortDataPtr createShortData(short value);
+
+short getShortDataValue(shortDataPtr shortDataPtr);
+
 #endif

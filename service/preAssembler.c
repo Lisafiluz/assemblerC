@@ -24,11 +24,11 @@
 
 int openMacros(FILE *file, FILE *outputFile);
 
-void writeMacroDataToFile(linkedList *macro, FILE *outputFile);
+void writeMacroDataToFile(linkedList macro, FILE *outputFile);
 
 char *getMacroName(char *line);
 
-void freeMacros(linkedList *pList);
+void freeMacros(linkedList pList);
 
 int preAssembler(int argc, char **argv) {
     int i, isValid;
@@ -58,8 +58,8 @@ int preAssembler(int argc, char **argv) {
 }
 
 int openMacros(FILE *file, FILE *outputFile) {
-    linkedList *macrosList, *macroData;
-    node *macro, *row;
+    linkedList macrosList, macroData;
+    node macro, row;
     char *firstToken, *macroName, *line, *lineCopy, *pLineCopy;
     void *macroDataRowCounter;
     int macroFlag, isValid;
@@ -91,7 +91,7 @@ int openMacros(FILE *file, FILE *outputFile) {
                     isValid = FALSE;
                 }
             } else if (isIdExist(firstToken, macrosList)) {
-                linkedList *macroDataToAdd = getDataById(firstToken, macrosList);
+                linkedList macroDataToAdd = getDataById(firstToken, macrosList);
                 writeMacroDataToFile(macroDataToAdd, outputFile);
             } else {
                 fprintf(outputFile, "%s\n", lineCopy);
@@ -110,13 +110,13 @@ int openMacros(FILE *file, FILE *outputFile) {
     return isValid;
 }
 
-void freeMacros(linkedList *pList) {
+void freeMacros(linkedList pList) {
     if (isListNotEmpty(pList)) {
-        node *currNode = pList->head;
+        node currNode = getHead(pList);
         while (currNode != NULL) {
-            free(currNode->id);
-            freeLinkedList((linkedList *) currNode->data);
-            currNode = currNode->next;
+            free(getId(currNode));
+            freeLinkedList((linkedList) getData(currNode));
+            currNode = getNextNode(currNode);
         }
     }
 }
@@ -140,12 +140,12 @@ char *getMacroName(char *line) {
     return macroName;
 }
 
-void writeMacroDataToFile(linkedList *macro, FILE *outputFile) {
+void writeMacroDataToFile(linkedList macro, FILE *outputFile) {
     if (isListNotEmpty(macro)) {
-        node *currNode = macro->head;
+        node currNode = getHead(macro);
         while (currNode != NULL) {
-            fprintf(outputFile, "%s\n", (char *) currNode->data);
-            currNode = currNode->next;
+            fprintf(outputFile, "%s\n", (char *) getData(currNode));
+            currNode = getNextNode(currNode);
         }
     }
 }

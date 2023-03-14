@@ -3,9 +3,9 @@
 
 #include "../structs/list.h"
 
-int saveGuidanceLine(char *line, int symbolFlag, linkedList *dataList, int dc);
+int saveGuidanceLine(char *line, int symbolFlag, linkedList  dataList, int dc);
 
-int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList *instructionsList);
+int saveCodeLine(char *line, int symbolFlag, const char **operationsTable, linkedList  instructionsList);
 
 char *getBinaryEncodedWord(short word);
 #endif
