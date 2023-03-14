@@ -1,3 +1,1 @@
-COOK tasty, pie
-    .Data 12, 675
-    .sTring "Whoops"
+jmp K1(r1, r3)

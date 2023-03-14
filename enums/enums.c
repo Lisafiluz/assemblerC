@@ -36,6 +36,8 @@ char *getFullErrorMessage(enum errorMessages errorType) {
             return "Operation name was not found";
         case SYMBOL_NOT_FOUND:
             return "Symbol used but not found";
+        case INTERNAL_ERROR:
+            return "Internal Error occurred";
         default:
             return "Internal Error";
     }

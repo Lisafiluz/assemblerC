@@ -35,6 +35,8 @@ int validateSourceArgAddressMethod(int addressMethod, int operationNumber);
 
 int validateTargetArgAddressMethod(int addressMethod, int operationNumber);
 
+int isString(char *line, int i);
+
 int validateMacroName(const char *macroName) {
     int isValid;
     isValid = TRUE;
@@ -91,9 +93,12 @@ int validateDataGuidanceLine(char *line, const int symbolFlag, char *fileName, i
         index = getNextTokenIndex(lineCopy, index, ' ');
         isValid = validateDotDataRow(&lineCopy[index], fileName, rowCounter);
 
-    } else {
+    } else if (isString(lineCopy, index)) {
         index = getNextTokenIndex(lineCopy, index, ' ');
         isValid = validateDotStringRow(startPtr, &lineCopy[index], fileName, rowCounter);
+    } else {
+        printError(INTERNAL_ERROR, line, fileName, rowCounter);
+        isValid = FALSE;
     }
     free(lineCopy);
     return isValid;
@@ -123,6 +128,7 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
         if (!isspace(arguments[i])) {
             if (arguments[i] == ',') {
                 number[numberCounter] = '\0';
+                number = trim(number);
                 if (strlen(number) == 0) {
                     isValid = FALSE;
                     printError(EMPTY_NUMBER, number, fileName, rowCounter);
@@ -138,13 +144,14 @@ int validateDotDataRow(char *arguments, const char *fileName, int rowCounter) {
                 numberCounter++;
             }
         } else {
-            if (number != NULL && strlen(number) > 0) {
+            if (number != NULL && strlen(number) > 0)  {
                 number[numberCounter] = arguments[i];
                 numberCounter++;
             }
         }
     }
     number[numberCounter] = '\0';
+    number = trim(number);
     if (strlen(number) == 0) {
         isValid = FALSE;
         printError(EMPTY_NUMBER, number, fileName, rowCounter);
@@ -322,6 +329,18 @@ int isData(const char *line, int i) {
            line[i + 2] == data[2] &&
            line[i + 3] == data[3] &&
            line[i + 4] == data[4];
+}
+
+int isString(char *line, int i) {
+    char *data;
+    data = ".string";
+    return line[i] == data[0] &&
+           line[i + 1] == data[1] &&
+           line[i + 2] == data[2] &&
+           line[i + 3] == data[3] &&
+           line[i + 4] == data[4] &&
+            line[i + 5] == data[5] &&
+            line[i + 6] == data[6];
 }
 
 int getNextTokenIndex(const char *str, int fromIdx, char delim) {
